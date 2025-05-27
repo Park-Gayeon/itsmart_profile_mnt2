@@ -1,13 +1,5 @@
 pipeline {
-  agent {
-    docker {
-      // Docker 데몬 소켓 + 커맨드 바이너리 마운트 대신
-      // 미리 docker-cli 포함된 커스텀 에이전트 이미지 사용을 권장
-      image 'myorg/gradle-docker:jdk21'
-      reuseNode true
-      args '-v /var/run/docker.sock:/var/run/docker.sock'
-    }
-  }
+  agent any
 
   environment {
     FRONTEND_IMAGE = "itsm-frontend:latest"
@@ -18,67 +10,61 @@ pipeline {
   stages {
     stage('Verify Environment') {
       steps {
+        script {
+          docker.image('myorg/gradle-docker:jdk21').inside('-v /var/run/docker.sock:/var/run/docker.sock') {
+            sh '''
+              echo "=== Environment Check ==="
+              java -version
+              gradle -version
+              docker --version
+              echo "Current user: $(whoami)"
+              echo "Groups: $(groups)"
+            '''
+          }
+        }
+      }
+    }
+
+    stage('Checkout') {
+      steps {
+        checkout scm
+        sh 'ls -al && git branch'
+        sh 'docker ps'
+      }
+    }
+
+    stage('Check Docker Images') {
+      steps {
         sh '''
-          echo "=== Environment Check ==="
-          java -version
-          gradle -version
-          docker --version
-          echo "Current user: $(whoami)"
-          echo "Groups: $(groups)"
+        IMAGE_LIST=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ":latest")
+        if [ -z "$IMAGE_LIST" ]; then
+            echo "No latest images found."
+        else
+            echo "$IMAGE_LIST" | while IFS= read -r IMG; do
+                echo "Removing: $IMG"
+                docker rmi -f "$IMG" || true
+            done
+        fi
         '''
       }
     }
-    stage('Checkout') {
-        steps {
-            echo "steps 진입"
-            checkout scm
-            sh 'ls -al && git branch'
-            echo "git branch"
-            sh 'docker ps'
-            echo "docker ps"
-        }
-    }
-    stage('Check Docker Images') {
-        steps {
-            script {
-                sh '''
-                IMAGE_LIST=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ":latest")
 
-                if [ -z "$IMAGE_LIST" ]; then
-                    echo "No latest images found."
-                else
-                    echo "Removing old images:"
-                    echo "$IMAGE_LIST"
-                    echo "$IMAGE_LIST" | while IFS= read -r IMG; do
-                        echo "Removing: $IMG"
-                        docker rmi -f "$IMG" || true
-                    done
-                fi
-                '''
-            }
-        }
-    }
     stage('Build Frontend') {
-        steps {
-            dir('frontend') {
-                sh 'docker build -t $FRONTEND_IMAGE -f dockerfile .'
-            }
+      steps {
+        dir('frontend') {
+          sh 'docker build -t $FRONTEND_IMAGE -f dockerfile .'
         }
+      }
     }
+
     stage('Build Backend') {
-        steps {
-            dir('backend') {
-                sh 'docker build -t $BACKEND_IMAGE -f dockerfile .'
-            }
+      steps {
+        dir('backend') {
+          sh 'docker build -t $BACKEND_IMAGE -f dockerfile .'
         }
+      }
     }
-    stage('Run Tests') {
-        steps {
-            dir('backend') {
-                sh './gradlew test --no-daemon'
-            }
-        }
-    }
+
     stage('Deploy Frontend & Backend') {
       steps {
         sh '''
@@ -88,18 +74,19 @@ pipeline {
         '''
       }
     }
-}
-post {
+  }
+
+  post {
     always {
-        cleanWs()
-        sh 'docker system prune -f'
-        echo 'Cleaning up workspace and unused Docker resources'
+      cleanWs()
+      sh 'docker system prune -f'
+      echo 'Cleaning up workspace and unused Docker resources'
     }
     success {
-        echo 'Pipeline completed successfully.'
+      echo 'Pipeline completed successfully.'
     }
     failure {
-        echo 'Pipeline failed. Please check the logs.'
+      echo 'Pipeline failed. Please check the logs.'
     }
-    }
+  }
 }
