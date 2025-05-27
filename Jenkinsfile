@@ -6,13 +6,19 @@ pipeline {
     BACKEND_IMAGE  = "itsm-backend:latest"
     COMPOSE_FILE   = 'docker-compose.yml'
   }
+  tools {
+          jdk ("jdk21")
+  }
 
   stages {
     stage('Checkout') {
       steps {
         checkout scm
-        sh 'ls -al && git branch'
-        sh 'docker ps'
+            script {
+                    sh '''
+                    docker ps
+                    '''
+            }
       }
     }
 
