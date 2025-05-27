@@ -1,0 +1,22 @@
+# JDK 21 기반 이미지 (빌드+런타임 단일 스테이지)
+FROM openjdk:21-jdk-slim AS builder
+
+WORKDIR /app
+
+# 1) 의존성 캐시 레이어
+COPY gradlew settings.gradle build.gradle ./
+COPY gradle/ gradle/
+RUN chmod +x gradlew \
+&& ./gradlew --no-daemon dependencies
+
+
+# 2) 소스 복사 & fat-jar 생성
+COPY src/ src/
+RUN ./gradlew --no-daemon bootJar
+
+# 3) 런타임: 빌더에서 뽑아오기
+FROM openjdk:21-jdk-slim
+WORKDIR /app
+COPY --from=builder /app/build/libs/*.jar app.jar
+
+ENTRYPOINT ["java", "-jar", "app.jar"]

@@ -1,4 +1,4 @@
-package kr.co.itsm.itsmart_profile_mnt2;
+package kr.co.itsm.profileMnt;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
