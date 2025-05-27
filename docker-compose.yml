@@ -19,8 +19,8 @@ services:
   itsm-backend:
     container_name: itsm-backend
     build:
-      context: ./backend
-      dockerfile: dockerfile
+      context: .
+      dockerfile: backend/dockerfile
     ports:
       - "9999:9999"
     volumes:
@@ -33,8 +33,8 @@ services:
   itsm-frontend:
     container_name: itsm-frontend
     build:
-      context: ./frontend
-      dockerfile: dockerfile
+      context: .
+      dockerfile: frontend/dockerfile
     ports:
       - "99:80"
     depends_on:
@@ -50,9 +50,9 @@ services:
       - "50000:50000"
     volumes:
       - jenkins_home:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock  # Docker-in-Docker 사용시
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./jenkins-init:/var/jenkins_home/init.groovy.d # admin 계정으로 로그인
     environment:
-      - DOCKER_HOST=unix:///var/run/docker.sock
       - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
     user: "1000:1000"
     networks:
