@@ -1,0 +1,66 @@
+services:
+  itsm-mysql:
+    container_name: itsm-mysql
+    image: mysql:8.0
+    ports:
+      - "3307:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=dkdlxltmakxm1!
+      - TZ=Asia/Seoul
+    volumes:
+      - itsm-mysql:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    command:
+      - "--character-set-server=utf8mb4"
+      - "--collation-server=utf8mb4_unicode_ci"
+    networks:
+      - itsm-network
+
+  itsm-backend:
+    container_name: itsm-backend
+    build:
+      context: ./backend
+      dockerfile: dockerfile
+    ports:
+      - "9999:9999"
+    volumes:
+      - /profileMnt:/profileMnt
+    depends_on:
+      - itsm-mysql
+    networks:
+      - itsm-network
+
+  itsm-frontend:
+    container_name: itsm-frontend
+    build:
+      context: ./frontend
+      dockerfile: dockerfile
+    ports:
+      - "99:80"
+    depends_on:
+      - itsm-backend
+    networks:
+      - itsm-network
+
+  itsm-jenkins:
+    image: jenkins/jenkins:lts
+    container_name: itsm-jenkins
+    ports:
+      - "7777:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock  # Docker-in-Docker 사용시
+    environment:
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+    user: "1000:1000"
+    networks:
+      - itsm-network
+volumes:
+  itsm-mysql:
+  jenkins_home:
+
+networks:
+  itsm-network:
+    driver: bridge

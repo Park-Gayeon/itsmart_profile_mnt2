@@ -1,6 +1,9 @@
 # Created by https://www.toptal.com/developers/gitignore/api/windows,macos,visualstudiocode,intellij+all,gradle,vue,vuejs,node,eclipse,svn,git
 # Edit at https://www.toptal.com/developers/gitignore?templates=windows,macos,visualstudiocode,intellij+all,gradle,vue,vuejs,node,eclipse,svn,git
 
+# .gitignore 파일
+*.idea
+
 ### Eclipse ###
 .metadata
 bin/
@@ -165,7 +168,7 @@ fabric.properties
 # Ignore everything but code style settings and run configurations
 # that are supposed to be shared within teams.
 
-.idea/*
+../.idea/vcs.xml
 
 #!.idea/codeStyles
 #!.idea/runConfigurations
