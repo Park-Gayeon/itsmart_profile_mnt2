@@ -35,28 +35,6 @@ pipeline {
       }
     }
 
-    stage('Build Frontend') {
-      steps {
-        dir('frontend') {
-          sh '''
-            echo "[INFO] Building frontend image..."
-            docker build -t $FRONTEND_IMAGE -f dockerfile .
-          '''
-        }
-      }
-    }
-
-    stage('Build Backend') {
-      steps {
-        dir('backend') {
-          sh '''
-            echo "[INFO] Building backend image..."
-            docker build -t $BACKEND_IMAGE -f dockerfile .
-          '''
-        }
-      }
-    }
-
     stage('Deploy Frontend & Backend') {
       steps {
         sh '''
