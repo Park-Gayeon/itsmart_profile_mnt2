@@ -1,41 +1,31 @@
-# Jenkins with Docker and JDK21 support
-FROM jenkins/jenkins:lts
+# Jenkins with Docker and JDK17 support
+FROM jenkins/jenkins:lts-jdk17
 
-# root 권한으로 전환
+# Switch to root to install packages
 USER root
 
-# 기본 패키지 업데이트 및 필수 도구 설치
+# Update base packages and install dependencies
 RUN apt-get update && apt-get install -y \
     ca-certificates \
     curl \
     gnupg \
     lsb-release \
-    wget
+    wget && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# JDK 21 설치
-RUN wget -O - https://apt.corretto.aws/corretto.key | apt-key add - && \
-    echo "deb https://apt.corretto.aws stable main" | tee /etc/apt/sources.list.d/corretto.list && \
-    apt-get update && \
-    apt-get install -y java-21-amazon-corretto-jdk
+# Docker official repository setup
+RUN curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" \
+      | tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-# JAVA_HOME 환경변수 설정
-ENV JAVA_HOME=/usr/lib/jvm/java-21-amazon-corretto
-ENV PATH=$JAVA_HOME/bin:$PATH
-
-# Docker 공식 저장소 추가
-RUN curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-# Docker CLI 설치
+# Install Docker CLI
 RUN apt-get update && apt-get install -y --no-install-recommends docker.io && rm -rf /var/lib/apt/lists/*
 
-# Jenkins 사용자를 docker 그룹에 추가
+# Add Jenkins user to docker group for socket access
 RUN usermod -aG docker jenkins
 
-RUN apt-get clean
-
-# Jenkins 사용자로 전환
+# Revert to Jenkins user
 USER jenkins
 
-# Jenkins에서 JDK 21을 기본으로 사용하도록 설정
-ENV JENKINS_JAVA_CMD=$JAVA_HOME/bin/java
+# Ensure Jenkins uses the container's Java (JDK17)
+ENV JENKINS_JAVA_CMD=/usr/local/openjdk-17/bin/java
