@@ -1,36 +1,33 @@
 pipeline {
   agent any
 
+  tools {
+    jdk "jdk21"
+  }
+
   environment {
     FRONTEND_IMAGE = "itsm-frontend:latest"
     BACKEND_IMAGE  = "itsm-backend:latest"
     COMPOSE_FILE   = 'docker-compose.yml'
-  }
-  tools {
-          jdk ("jdk21")
   }
 
   stages {
     stage('Checkout') {
       steps {
         checkout scm
-            script {
-                    sh '''
-                    docker ps
-                    '''
-            }
       }
     }
 
     stage('Check Docker Images') {
       steps {
         sh '''
-        IMAGE_LIST=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ":latest")
+        echo "[INFO] Checking for :latest tagged Docker images..."
+        IMAGE_LIST=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ":latest" || true)
         if [ -z "$IMAGE_LIST" ]; then
-            echo "No latest images found."
+            echo "[INFO] No latest images found."
         else
             echo "$IMAGE_LIST" | while IFS= read -r IMG; do
-                echo "Removing: $IMG"
+                echo "[INFO] Removing: $IMG"
                 docker rmi -f "$IMG" || true
             done
         fi
@@ -41,7 +38,10 @@ pipeline {
     stage('Build Frontend') {
       steps {
         dir('frontend') {
-          sh 'docker build -t $FRONTEND_IMAGE -f dockerfile .'
+          sh '''
+            echo "[INFO] Building frontend image..."
+            docker build -t $FRONTEND_IMAGE -f dockerfile .
+          '''
         }
       }
     }
@@ -49,7 +49,10 @@ pipeline {
     stage('Build Backend') {
       steps {
         dir('backend') {
-          sh 'docker build -t $BACKEND_IMAGE -f dockerfile .'
+          sh '''
+            echo "[INFO] Building backend image..."
+            docker build -t $BACKEND_IMAGE -f dockerfile .
+          '''
         }
       }
     }
@@ -57,9 +60,11 @@ pipeline {
     stage('Deploy Frontend & Backend') {
       steps {
         sh '''
-          docker-compose -f $COMPOSE_FILE stop itsm-frontend itsm-backend
-          docker-compose -f $COMPOSE_FILE rm -f itsm-frontend itsm-backend
-          docker-compose -f $COMPOSE_FILE up -d --build itsm-backend itsm-frontend
+          echo "[INFO] Stopping existing containers..."
+          docker-compose -f $COMPOSE_FILE down
+
+          echo "[INFO] Starting up new containers..."
+          docker-compose -f $COMPOSE_FILE up -d --build
         '''
       }
     }
@@ -68,14 +73,16 @@ pipeline {
   post {
     always {
       cleanWs()
-      sh 'docker system prune -f'
-      echo 'Cleaning up workspace and unused Docker resources'
+      sh '''
+        echo "[INFO] Cleaning up unused Docker resources..."
+        docker system prune -f
+      '''
     }
     success {
-      echo 'Pipeline completed successfully.'
+      echo '[SUCCESS] Pipeline completed successfully.'
     }
     failure {
-      echo 'Pipeline failed. Please check the logs.'
+      echo '[FAILURE] Pipeline failed. Please check the logs.'
     }
   }
 }
