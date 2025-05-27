@@ -9,6 +9,10 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
+                sh 'ls -al && git branch'
+                echo "git branch"
+                sh 'docker ps'
+                echo "docker ps"
             }
         }
         stage('Check Docker Images') {
