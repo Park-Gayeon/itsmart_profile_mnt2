@@ -47,7 +47,7 @@ services:
       context: .
       dockerfile: dockerfile
     container_name: itsm-jenkins
-    user: root        # Docker 소켓 접근을 위해 root 권한 필요
+    user: root     # Docker 소켓 접근을 위해 root 권한 필요
     ports:
       - "7777:8080"   # Jenkins 웹 인터페이스
       - "50000:50000" # Jenkins 에이전트 연결 포트
@@ -55,9 +55,7 @@ services:
       - jenkins_home:/var/jenkins_home
       - ./jenkins-init:/var/jenkins_home/init.groovy.d # admin 계정으로 로그인
       - /var/run/docker.sock:/var/run/docker.sock      # Docker In Docker 지원을 위한 소켓 마운트
-      - /usr/bin/docker:/usr/bin/docker:ro             # Docker CLI 바이너리 마운트
     environment:
-      - DOCKER_HOST=unix:///var/run/docker.sock
       - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
       - DOCKER_HOST=unix:///var/run/docker.sock        # Docker 호스트 설정
       - JAVA_HOME=/usr/lib/jvm/java-21-amazon-corretto # JDK 21 사용 설정

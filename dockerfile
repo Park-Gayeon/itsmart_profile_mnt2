@@ -27,13 +27,12 @@ RUN curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /
 RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
 
 # Docker CLI 설치
-RUN apt-get update && apt-get install -y docker.io -y
+RUN apt-get update && apt-get install -y --no-install-recommends docker.io && rm -rf /var/lib/apt/lists/*
 
 # Jenkins 사용자를 docker 그룹에 추가
 RUN usermod -aG docker jenkins
 
-# 권한 정리
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN apt-get clean
 
 # Jenkins 사용자로 전환
 USER jenkins
