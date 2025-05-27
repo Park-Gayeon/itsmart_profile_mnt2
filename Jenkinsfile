@@ -6,8 +6,6 @@ pipeline {
   }
 
   environment {
-    FRONTEND_IMAGE = "itsm-frontend:latest"
-    BACKEND_IMAGE  = "itsm-backend:latest"
     COMPOSE_FILE   = 'docker-compose.yml'
   }
 
@@ -15,6 +13,15 @@ pipeline {
     stage('Checkout') {
       steps {
         checkout scm
+      }
+    }
+
+    stage('Stop and Remove containers') {
+      steps {
+        sh '''
+          echo "[INFO] Stopping existing containers..."
+          docker-compose -f $COMPOSE_FILE down
+        '''
       }
     }
 
@@ -38,9 +45,6 @@ pipeline {
     stage('Deploy Frontend & Backend') {
       steps {
         sh '''
-          echo "[INFO] Stopping existing containers..."
-          docker-compose -f $COMPOSE_FILE down
-
           echo "[INFO] Starting up new containers..."
           docker-compose -f $COMPOSE_FILE up -d --build
         '''
