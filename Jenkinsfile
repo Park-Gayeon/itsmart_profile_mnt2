@@ -1,13 +1,35 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'gradle:8.5-jdk21'
+            // Docker 소켓 마운트로 DinD 지원
+            args '-v /var/run/docker.sock:/var/run/docker.sock --group-add docker'
+            // 워크스페이스 재사용으로 성능 향상
+            reuseNode true
+        }
+    }
     environment {
         FRONTEND_IMAGE = "itsm-frontend:latest"
         BACKEND_IMAGE = "itsm-backend:latest"
         COMPOSE_FILE = 'docker-compose.yml'
+
     }
     stages {
+        stage('Verify Environment') {
+            steps {
+                sh '''
+                echo "=== Environment Check ==="
+                java -version
+                gradle -version
+                docker --version
+                echo "Current user: $(whoami)"
+                echo "Groups: $(groups)"
+                '''
+            }
+        }
         stage('Checkout') {
             steps {
+                echo "steps 진입"
                 checkout scm
                 sh 'ls -al && git branch'
                 echo "git branch"
@@ -61,7 +83,7 @@ pipeline {
                 // Stop only frontend and backend services
                 sh "docker-compose -f $COMPOSE_FILE stop itsm-frontend itsm-backend"
                 // Remove stopped frontend and backend containers
-                sh "docker-compose -f $COMPOSE_FILE rm -f itsm-frontend itsm-backend"
+                sh "docker-compose -f $COMPOSE_FILE rm -f itsm-frontend itsm-frontend"
                 // Start only frontend and backend with build
                 sh "docker-compose -f $COMPOSE_FILE up -d --build itsm-backend itsm-frontend"
             }
