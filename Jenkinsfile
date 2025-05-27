@@ -8,23 +8,6 @@ pipeline {
   }
 
   stages {
-    stage('Verify Environment') {
-      steps {
-        script {
-          docker.image('myorg/gradle-docker:jdk21').inside('-v /var/run/docker.sock:/var/run/docker.sock') {
-            sh '''
-              echo "=== Environment Check ==="
-              java -version
-              gradle -version
-              docker --version
-              echo "Current user: $(whoami)"
-              echo "Groups: $(groups)"
-            '''
-          }
-        }
-      }
-    }
-
     stage('Checkout') {
       steps {
         checkout scm
