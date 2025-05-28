@@ -5,6 +5,11 @@ pipeline {
     jdk "jdk21"
   }
 
+  // 변경사항이 있는 경우 실행 2PM
+  triggers {
+      pollSCM('0 14 * * *')
+  }
+
   environment {
     COMPOSE_FILE   = 'docker-compose.yml'
   }
