@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.itsm.profileMnt.dao.CommonDAO">
+    <!-- mybatis : https://mybatis.org/mybatis-3/ko/sqlmap-xml.html#result-maps -->
+    <!-- code_group_id로 list 조회 -->
+    <select id="getCodeList" parameterType="Map" resultType="TbCommonCodeDto">
+        SELECT code_id, code_value
+        FROM TB_COMMON_CODE AS A
+        WHERE CODE_GROUP_ID = #{codeId}
+        <choose>
+            <when test="type != null and type != ''">
+                AND A.CODE_ID IN
+            </when>
+            <otherwise>
+                AND A.CODE_ID NOT IN
+            </otherwise>
+        </choose>
+        (SELECT DISTINCT B.PARENT_ID
+        FROM TB_COMMON_CODE AS B
+        WHERE B.CODE_GROUP_ID = #{codeId}
+        AND B.PARENT_ID IS NOT NULL
+        AND B.USE_YN = 'Y')
+        AND A.USE_YN = 'Y'
+    </select>
+</mapper>

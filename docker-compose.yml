@@ -12,7 +12,6 @@ services:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     command:
       - "--character-set-server=utf8mb4"
-      - "--collation-server=utf8mb4_unicode_ci"
     networks:
       - itsm-network
 
@@ -23,8 +22,6 @@ services:
       dockerfile: dockerfile
     ports:
       - "9999:9999"
-    volumes:
-      - /profileMnt:/profileMnt
     depends_on:
       - itsm-mysql
     networks:
