@@ -4,8 +4,7 @@ SET NAMES utf8mb4;
 -- db 생성
 CREATE
 DATABASE IF NOT EXISTS itsm
-    CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
+    CHARACTER SET utf8mb4;
 USE itsm;
 
 -- user 생성
@@ -589,13 +588,13 @@ VALUES ('STUT', '002', '구분', '졸업예정', NULL, 0, SYSDATE(), 'admin');
 INSERT INTO TB_COMMON_CODE (code_group_id, code_id, code_group_nm, code_value, parent_id, level, created_date, creator)
 VALUES ('STUT', '003', '구분', '재학중', NULL, 0, SYSDATE(), 'admin');
 INSERT INTO TB_COMMON_CODE (code_group_id, code_id, code_group_nm, code_value, parent_id, level, created_date, creator)
-VALUES ('STUT', '010', '구분', '고등학교', NULL, 0, SYSDATE(), 'admin');
+VALUES ('SCHL', '010', '구분', '고등학교', NULL, 0, SYSDATE(), 'admin');
 INSERT INTO TB_COMMON_CODE (code_group_id, code_id, code_group_nm, code_value, parent_id, level, created_date, creator)
-VALUES ('STUT', '011', '구분', '대학교(2,3년)', NULL, 0, SYSDATE(), 'admin');
+VALUES ('SCHL', '011', '구분', '대학교(2,3년)', NULL, 0, SYSDATE(), 'admin');
 INSERT INTO TB_COMMON_CODE (code_group_id, code_id, code_group_nm, code_value, parent_id, level, created_date, creator)
-VALUES ('STUT', '012', '구분', '대학교(4년)', NULL, 0, SYSDATE(), 'admin');
+VALUES ('SCHL', '012', '구분', '대학교(4년)', NULL, 0, SYSDATE(), 'admin');
 INSERT INTO TB_COMMON_CODE (code_group_id, code_id, code_group_nm, code_value, parent_id, level, created_date, creator)
-VALUES ('STUT', '013', '구분', '대학원', NULL, 0, SYSDATE(), 'admin');
+VALUES ('SCHL', '013', '구분', '대학원', NULL, 0, SYSDATE(), 'admin');
 INSERT INTO TB_COMMON_CODE (code_group_id, code_id, code_group_nm, code_value, parent_id, level, created_date, creator)
 VALUES ('ROLE', '001', '사업역할', 'PM', NULL, 0, SYSDATE(), 'admin');
 INSERT INTO TB_COMMON_CODE (code_group_id, code_id, code_group_nm, code_value, parent_id, level, created_date, creator)

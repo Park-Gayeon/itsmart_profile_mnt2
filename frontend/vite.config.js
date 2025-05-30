@@ -1,19 +1,26 @@
-// vite.config.js
-import { defineConfig } from 'vite';
-import vue from '@vitejs/plugin-vue';
+import { fileURLToPath, URL } from 'node:url'
 
-// https://vitejs.dev/config/
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import vueDevTools from 'vite-plugin-vue-devtools'
+
+// https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-    vue(), // .vue 파일을 처리할 플러그인
-  ],
+  plugins: [vue(), vueDevTools()],
   resolve: {
     alias: {
-      '@': '/src', // Optional: `@` → `src/` 경로 별칭
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
   server: {
-    port: 5173, // 원한다면 포트 지정
-    open: true, // dev 서버 시작 시 자동 브라우저 열기
+    port: 5173,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:9999',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api/, '/api'), // 그대로 전달
+      },
+    },
   },
-});
+})

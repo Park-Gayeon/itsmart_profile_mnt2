@@ -4,17 +4,58 @@ spring:
   devtools:
     restart:
       enabled: false
+  security:
+    user:
+      name: user
+      password: "{noop}1234"
+    jwt:
+      secret-key: s2NS+dEj3PZ1F1n6kkgh2Scv9qWZz3hVm3ROt4EObDsJH7mQ+lD4Iya9z+7uBnPb5zF8Ru1lFRs=
+      expiration: 300000 # 5 min
+#      expiration: 3600000 # 1 hour
+      refresh-token:
+        expiration: 3600000 # 1 hour
+
   datasource:
-    url: jdbc:mysql://mysqlDB:3306/demo_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:mysql://itsm-mysql:3306/itsm?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+#    url: jdbc:mysql://localhost:3307/itsm?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: itsmart
     password: dkdlxltmakxm1!
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      ddl-auto: update
+    show-sql: true
+    format-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+        use_sql_comments: true
+        connection:
+          characterEncoding: utf8mb4
+          useUnicode: true
+    database-platform: org.hibernate.dialect.MySQLDialect
+
 mybatis:
   mapper-locations: classpath:sqlMapper/*.xml
-  type-aliases-package: kr.co.itsm.profileMnt.vo
+  type-aliases-package: kr.co.itsm.profileMnt.dto
   configuration:
     map-underscore-to-camel-case: true
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# Swagger
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  paths-to-match: /api/**
+  packages-to-scan: kr.co.itsm.profileMnt.controller
 
 debug: false
 management.endpoints.web.exposure.exclude: "*"
@@ -24,6 +65,8 @@ logging:
     kr.co.itsm.profileMnt: debug
     kr.co.itsm.profileMnt.mapper: TRACE
     org.springframework.web.servlet: debug
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
 # Spring Boot Port setting(=Docker container port)
 server:
@@ -32,3 +75,7 @@ server:
 file:
   upload-photo-dir: /opt/profileMnt/uploads/images
   upload-excel-dir: /opt/profileMnt/uploads/excel
+
+user:
+  default-password: itsmart1!
+
