@@ -9,7 +9,6 @@ const authStore = useAuthStore()
 // 앱이 마운트된 후 auth helpers 등록
 onMounted(() => {
   console.log('Setting up auth helpers...') // 디버깅용
-
   setAuthHelpers(
     () => {
       console.log('Getting token from store:', authStore.accessToken) // 디버깅용
