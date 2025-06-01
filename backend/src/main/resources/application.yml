@@ -5,19 +5,15 @@ spring:
     restart:
       enabled: false
   security:
-    user:
-      name: user
-      password: "{noop}1234"
     jwt:
       secret-key: s2NS+dEj3PZ1F1n6kkgh2Scv9qWZz3hVm3ROt4EObDsJH7mQ+lD4Iya9z+7uBnPb5zF8Ru1lFRs=
       expiration: 300000 # 5 min
-#      expiration: 3600000 # 1 hour
       refresh-token:
         expiration: 3600000 # 1 hour
 
   datasource:
-    url: jdbc:mysql://itsm-mysql:3306/itsm?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-#    url: jdbc:mysql://localhost:3307/itsm?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+#    url: jdbc:mysql://itsm-mysql:3306/itsm?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3307/itsm?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: itsmart
     password: dkdlxltmakxm1!
     driver-class-name: com.mysql.cj.jdbc.Driver
