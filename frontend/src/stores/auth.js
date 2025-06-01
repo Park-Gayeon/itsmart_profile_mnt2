@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
 import router from '@/router/index.js'
+import { toast } from 'vue3-toastify'
 
 // auth 전용 axios 인스턴스 (순환참조 방지)
 const authApiClient = axios.create({
@@ -34,32 +35,6 @@ export const useAuthStore = defineStore('auth', {
     hasAuthority: (state) => (authority) => {
       return state.authorities.includes(authority)
     },
-
-    isAccessTokenExpired: (state) => {
-      const decodeJwtPayload = (token) => {
-        if (!token) return null
-        try {
-          const payloadBase64 = token.split('.')[1]
-          const payloadJson = atob(payloadBase64)
-          return JSON.parse(payloadJson)
-        } catch (e) {
-          console.error('JWT 디코딩 실패:', e)
-          return null
-        }
-      }
-
-      const payload = decodeJwtPayload(state.accessToken) // ✅ 내부 함수로 호출
-      if (!payload || !payload.exp) return true
-      const now = Math.floor(Date.now() / 1000)
-      return payload.exp < now
-    },
-
-    isRefreshTokenExpired: (state) => {
-      const payload = decodeJwtPayload(state.refreshToken) // ✅ 오타 수정
-      if (!payload || !payload.exp) return true
-      const now = Math.floor(Date.now() / 1000)
-      return payload.exp < now
-    },
   },
 
   actions: {
@@ -87,6 +62,7 @@ export const useAuthStore = defineStore('auth', {
 
       // refresh token도 만료되었다면 로그아웃
       if (this.isRefreshTokenExpired()) {
+        toast.error('세션이 만료되었습니다. 다시 로그인 해주세요.')
         this.logout()
         throw new Error('Refresh token expired')
       }
@@ -142,6 +118,20 @@ export const useAuthStore = defineStore('auth', {
         console.error('JWT 디코딩 실패:', e)
         return null
       }
+    },
+
+    isAccessTokenExpired() {
+      const payload = this.decodeJwtPayload(this.accessToken)
+      if (!payload || !payload.exp) return true
+      const now = Math.floor(Date.now() / 1000)
+      return payload.exp < now
+    },
+
+    isRefreshTokenExpired() {
+      const payload = this.decodeJwtPayload(this.refreshToken)
+      if (!payload || !payload.exp) return true
+      const now = Math.floor(Date.now() / 1000)
+      return payload.exp < now
     },
   },
 })
