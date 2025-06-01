@@ -12,8 +12,12 @@ spring:
         expiration: 3600000 # 1 hour
 
   datasource:
+#    Jenkins CI/CD 용
     url: jdbc:mysql://itsm-mysql:3306/itsm
-#    url: jdbc:mysql://localhost:3307/itsm?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+#    local Docker 용
+#    url: jdbc:mysql://host.docker.internal:3307/itsm
+#    dev 용
+#    url: jdbc:mysql://localhost:3307/itsm
     username: itsmart
     password: dkdlxltmakxm1!
     driver-class-name: com.mysql.cj.jdbc.Driver
