@@ -3,6 +3,7 @@ import { RouterView } from 'vue-router'
 import { onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { setAuthHelpers } from '@/utils/axios'
+import { ModalsContainer } from 'vue-final-modal'
 
 const authStore = useAuthStore()
 
@@ -24,4 +25,5 @@ onMounted(() => {
 
 <template>
   <router-view />
+  <ModalsContainer />
 </template>

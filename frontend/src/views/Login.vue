@@ -2,10 +2,7 @@
   <main class="content">
     <div class="form-signin w-100 m-auto">
       <div class="logo pb-3">
-        <div class="logo-image">
-          <img :src="logoSrc" alt="Logo" />
-        </div>
-        <p>반갑습니다 :-)</p>
+        <h2>로그인</h2>
       </div>
       <form @submit.prevent="login">
         <div class="form-floating mb-3">
@@ -29,7 +26,7 @@
           />
           <label for="floatingPassword">PW</label>
         </div>
-        <button type="submit" class="btn btn-dark w-100 py-2" :disabled="loading">
+        <button type="submit" class="btn btn-dark w-100 py-3" :disabled="loading">
           <span class="basic-medium">
             {{ loading ? '로그인 중...' : '로그인' }}
           </span>
@@ -42,6 +39,7 @@
 <script>
 import image from '@/assets/images/etc/person-circle.svg'
 import { useAuthStore } from '@/stores/auth'
+import { toast } from 'vue3-toastify'
 import { mapStores } from 'pinia'
 
 export default {
@@ -62,7 +60,7 @@ export default {
     async login() {
       // 입력값 검증
       if (!this.userId || !this.userPw) {
-        alert('ID와 PW를 확인하세요')
+        toast.error('ID/PW를 확인해주세요.')
         return
       }
 
@@ -74,7 +72,6 @@ export default {
           userPw: this.userPw,
         })
 
-        alert('로그인 성공!')
         this.$router.push({ name: 'Main' })
       } catch (error) {
         console.error('로그인 실패:', error)
