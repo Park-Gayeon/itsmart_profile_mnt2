@@ -90,7 +90,6 @@ h2, button span {
 
 .content {
     flex-grow: 1; /* 빈 공간을 채우기 위한 메인 콘텐츠 */
-    background-color: var(--bs-gray-200);
 }
 
 .star {
