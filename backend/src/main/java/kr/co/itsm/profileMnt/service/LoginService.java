@@ -1,6 +1,7 @@
 package kr.co.itsm.profileMnt.service;
 
 import jakarta.servlet.http.HttpServletRequest;
+import kr.co.itsm.profileMnt.dto.AuthRequest;
 import kr.co.itsm.profileMnt.dto.AuthResponse;
 import kr.co.itsm.profileMnt.dto.LoginDto;
 
@@ -11,7 +12,7 @@ public interface LoginService {
 
     AuthResponse refreshToken(String refreshToken);
 
-    void changeUsrPassword(Map<String, String> params);
+    void changeUsrPassword(AuthRequest login);
 
     void deleteUsr(String userId);
 }

@@ -13,11 +13,11 @@
       <router-link
         v-for="item in menuItems"
         :key="item.id"
-        :to="{ name: item.route }"
+        :to="item.route"
         class="menu-item"
-        @click.native="handleNavigation"
+        @click.native="handleNavigation(item)"
       >
-        <span :class="`icon ${item.icon}`"></span>
+        <span :class="`icon ${item.icon || ''}`"></span>
         {{ item.label }}
       </router-link>
     </div>
@@ -58,38 +58,23 @@ export default {
     },
     headerTitle: {
       type: String,
-      default: '환영합니다',
+      required: true,
     },
     headerSubtitle: {
       type: String,
-      default: '사용자님',
+      required: true,
     },
     accountTitle: {
       type: String,
-      default: '계정 설정',
+      required: true,
     },
     menuItems: {
       type: Array,
-      default: () => [
-        { id: 'Main', label: 'HOME', route: 'Main' },
-        { id: 'ProfileList', label: '직원 프로필관리', route: 'ProfileList' },
-        // { id: 'Profile', label: '내 프로필관리', route: 'Profile' },
-        { id: 'Project', label: '프로젝트 관리', route: 'Project' },
-        { id: 'Schedule', label: '프로젝트 일정관리', route: 'Schedule' },
-        { id: 'Org', label: '회사조직도', route: 'Org' },
-      ],
+      required: true,
     },
     accountItems: {
       type: Array,
-      default: () => [
-        { id: 'logout', label: '로그아웃', icon: 'icon-logout', action: 'logout' },
-        {
-          id: 'changePassword',
-          label: '비밀번호 변경',
-          icon: 'icon-lock',
-          action: 'changePassword',
-        },
-      ],
+      required: true,
     },
   },
   emits: ['close', 'navigate', 'account-action'],
@@ -106,7 +91,8 @@ export default {
     },
   },
   methods: {
-    handleNavigation() {
+    handleNavigation(item) {
+      this.$emit('navigate', item)
       this.closeSidebar()
     },
     closeSidebar() {

@@ -41,4 +41,10 @@ public class LoginController {
         // Stateless 환경에서는 클라이언트에서 토큰을 삭제하도록 안내
         return ResponseEntity.ok("Please remove tokens from client storage");
     }
+
+    @PostMapping("/password")
+    public ResponseEntity<ApiResponse<Void>> changePassword(@RequestBody AuthRequest login) {
+        loginService.changeUsrPassword(login);
+        return ResponseEntity.ok(ApiResponse.success());
+    }
 }
