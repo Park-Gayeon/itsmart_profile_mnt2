@@ -122,7 +122,7 @@ export default {
     },
 
     onClickCloseButton() {
-      this.closeModal()
+      this.show = false
     },
 
     validateForm() {
