@@ -25,6 +25,7 @@ const routes = [
         path: '/profile/:userId',
         name: 'Profile',
         component: () => import('@/views/UserProfile.vue'),
+        props: true,
       },
       {
         path: '/project/common/list',

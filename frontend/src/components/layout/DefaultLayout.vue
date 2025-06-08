@@ -13,7 +13,7 @@
       :header-title="sidebarConfig.headerTitle"
       :header-subtitle="computedSidebarConfig.headerSubtitle"
       :account-title="sidebarConfig.accountTitle"
-      :menu-items="sidebarConfig.menuItems"
+      :menu-items="computedMenuItems"
       :account-items="sidebarConfig.accountItems"
       @close="closeSidebar"
       @navigate="handleNavigation"
@@ -33,6 +33,9 @@
       :version="footerConfig.version"
       @navigate="handleFooterNavigation"
     />
+
+    <!-- 비밀번호 변경 모달 -->
+    <PasswordChangeModal v-model="showChangePasswordModal" @closed="handlePasswordModalClosed" />
   </div>
 </template>
 
@@ -40,6 +43,7 @@
 import DefaultHeader from '@/components/layout/DefaultHeader.vue'
 import DefaultFooter from '@/components/layout/DefaultFooter.vue'
 import DefaultSidebar from '@/components/layout/DefaultSidebar.vue'
+import PasswordChangeModal from '@/components/modals/PasswordChangeModal.vue'
 import { useAuthStore } from '@/stores/auth.js'
 import router from '@/router/index.js'
 
@@ -49,6 +53,14 @@ export default {
     DefaultHeader,
     DefaultFooter,
     DefaultSidebar,
+    PasswordChangeModal,
+  },
+  data() {
+    return {
+      authStore: useAuthStore(),
+      isSidebarOpen: false,
+      showChangePasswordModal: false,
+    }
   },
   props: {
     sidebarConfig: {
@@ -57,14 +69,6 @@ export default {
         headerTitle: '환영합니다',
         headerSubtitle: '',
         accountTitle: '계정 설정',
-        menuItems: [
-          { id: 'Main', label: 'HOME', route: 'Main' },
-          { id: 'ProfileList', label: '직원 프로필관리', route: 'ProfileList' },
-          // { id: 'Profile', label: '내 프로필관리', route: 'Profile' },
-          { id: 'Project', label: '프로젝트 관리', route: 'Project' },
-          { id: 'Schedule', label: '프로젝트 일정관리', route: 'Schedule' },
-          { id: 'Org', label: '회사조직도', route: 'Org' },
-        ],
         accountItems: [
           { id: 'logout', label: '로그아웃', icon: 'icon-logout', action: 'logout' },
           {
@@ -79,39 +83,40 @@ export default {
     footerConfig: {
       type: Object,
       default: () => ({
-        companyName: 'My Company',
+        companyName: 'ITSmart',
         version: '1.0.0',
       }),
     },
   },
   computed: {
     computedSidebarConfig() {
-      const authStore = useAuthStore()
       return {
         ...this.sidebarConfig,
-        headerSubtitle: authStore.username + ' 님',
+        headerSubtitle: this.authStore.username + ' 님',
       }
+    },
+    computedMenuItems() {
+      const userId = this.authStore.username
+      const items = [
+        { id: 'Main', label: 'HOME', route: { name: 'Main' } },
+        { id: 'ProfileList', label: '직원 프로필관리', route: { name: 'ProfileList' } },
+        { id: 'Project', label: '프로젝트 관리', route: { name: 'Project' } },
+        { id: 'Schedule', label: '프로젝트 일정관리', route: { name: 'Schedule' } },
+        { id: 'Org', label: '회사조직도', route: { name: 'Org' } },
+      ]
+      if (userId) {
+        items.splice(1, 0, {
+          id: 'Profile',
+          label: '내 프로필관리',
+          route: { name: 'Profile', params: { userId } },
+        })
+      }
+
+      return items
     },
   },
   emits: ['navigate', 'account-action', 'footer-navigate'],
-  data() {
-    return {
-      authStore: useAuthStore(),
-      isSidebarOpen: false,
-      menuItems: [
-        { id: 'Main', label: 'HOME', route: 'Main' },
-        { id: 'ProfileList', label: '직원 프로필관리', route: 'ProfileList' },
-        {
-          id: 'Profile',
-          label: '내 프로필관리',
-          // route: { name: 'Profile', params: { userId } },
-        },
-        { id: 'Project', label: '프로젝트 관리', route: 'Project' },
-        { id: 'Schedule', label: '프로젝트 일정관리', route: 'Schedule' },
-        { id: 'Org', label: '회사조직도', route: 'Org' },
-      ],
-    }
-  },
+
   methods: {
     toggleSidebar() {
       if (!this.authStore.isLoggedIn) {
@@ -119,8 +124,8 @@ export default {
         this.$alertMsg('로그인 후 이용 가능합니다.', () => this.login())
       } else {
         this.isSidebarOpen = !this.isSidebarOpen
-        console.log(authStore.authorities[0])
-        console.log(authStore.username)
+        console.log(this.authStore.authorities[0])
+        console.log(this.authStore.username)
       }
     },
 
@@ -137,7 +142,28 @@ export default {
     },
 
     handleAccountAction(item) {
-      this.$emit('account-action', item)
+      switch (item.action) {
+        case 'logout':
+          this.authStore.logout()
+          router.push({ name: 'Login' })
+          break
+        case 'changePassword':
+          this.openChangePassword()
+          break
+        default:
+          this.$emit('account-action', item)
+      }
+    },
+
+    // 비밀번호 변경 모달 열기
+    openChangePassword() {
+      this.showChangePasswordModal = true
+    },
+
+    handlePasswordModalClosed() {
+      this.showChangePasswordModal = false
+      this.authStore.logout()
+      router.push({ name: 'Login' })
     },
 
     handleFooterNavigation(page) {

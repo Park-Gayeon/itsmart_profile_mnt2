@@ -1,7 +1,10 @@
 package kr.co.itsm.profileMnt.service.impl;
 
+import kr.co.itsm.profileMnt.domain.TbUserProfileInfo;
+import kr.co.itsm.profileMnt.dto.AuthRequest;
 import kr.co.itsm.profileMnt.dto.AuthResponse;
 import kr.co.itsm.profileMnt.dto.LoginDto;
+import kr.co.itsm.profileMnt.repository.TbUserProfileInfoRepository;
 import kr.co.itsm.profileMnt.service.LoginService;
 import kr.co.itsm.profileMnt.util.handler.CustomException;
 import kr.co.itsm.profileMnt.util.jwt.JwtUtils;
@@ -17,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -29,6 +33,7 @@ public class LoginServiceImpl implements LoginService {
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
+    private final TbUserProfileInfoRepository profileRepository;
 
     @Override
     public AuthResponse authenticate(LoginDto loginRequest) {
@@ -87,14 +92,10 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
-    public void changeUsrPassword(Map<String, String> params) {
-
-        // PASSWORD 암호화
-        String encodedPassword = passwordEncoder.encode(params.get("userPw"));
-
-        // JPA 로 수정
-//        params.put("userPw", encodedPassword);
-//        commonDAO.changeUsrPassword(params);
+    @Transactional
+    public void changeUsrPassword(AuthRequest login) {
+        String encodedPassword = passwordEncoder.encode(login.userPw());
+        profileRepository.updatePassword(login.userId(), encodedPassword);
     }
 
     @Override

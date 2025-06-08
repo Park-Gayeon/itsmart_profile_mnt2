@@ -8,21 +8,11 @@
     <div class="modal-header">
       <h2>{{ title }}</h2>
       <button class="modal-close-btn" @click="onClickCloseButton()">
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
+        <img :src="closeBtn" alt="close button" />
       </button>
     </div>
 
-    <div class="alert-box">
+    <div class="modal-body">
       <p>{{ message }}</p>
     </div>
 
@@ -36,6 +26,7 @@
 
 <script>
 import { VueFinalModal } from 'vue-final-modal'
+import closeBtn from '@/assets/images/etc/icon_modal_close.png'
 
 export default {
   components: { VueFinalModal },
@@ -50,6 +41,7 @@ export default {
 
   data() {
     return {
+      closeBtn,
       show: true,
     }
   },
@@ -59,8 +51,6 @@ export default {
       return 100000 + index * 2
     },
     onClickOkButton() {
-      console.log('확인버튼 클릭함')
-
       // onOk 함수가 존재하고 함수타입인지 확인 후 실행
       if (this.onOk && typeof this.onOk === 'function') {
         try {
@@ -74,7 +64,6 @@ export default {
       this.closeModal()
     },
     onClickCloseButton() {
-      console.log('닫기버튼 클릭함')
       this.closeModal()
     },
 
@@ -169,17 +158,18 @@ export default {
   transform: scale(0.95);
 }
 
-.alert-box {
+.modal-body {
   padding: 24px 32px;
   text-align: center;
 }
 
-.alert-box p {
+.modal-body p {
   margin: 0;
   font-size: 16px;
   line-height: 1.5;
   color: #4b5563;
   word-break: break-word;
+  white-space: pre-line;
 }
 
 .btn-box {
@@ -246,11 +236,11 @@ export default {
     font-size: 18px;
   }
 
-  .alert-box {
+  .modal-body {
     padding: 20px 24px;
   }
 
-  .alert-box p {
+  .modal-body p {
     font-size: 15px;
   }
 
