@@ -12,7 +12,7 @@ public interface LoginService {
 
     AuthResponse refreshToken(String refreshToken);
 
-    void changeUsrPassword(AuthRequest login);
+    void changeUsrPassword(AuthRequest login, String flag);
 
     void deleteUsr(String userId);
 }

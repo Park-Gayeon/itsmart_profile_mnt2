@@ -1,18 +1,18 @@
 <template>
   <div class="content">
     <div class="container-md pt-3 mb-md-5" v-if="userInfo">
-      <div id="viewMode">
+      <div v-if="mode === 'view'">
         <!-- 프로필 헤더 -->
         <h2 class="header">
           프로필
           <div class="description d-md-flex">
-            <button v-if="isAdmin" class="btn btn-success btnChg" @click="goToList">
+            <button v-if="isAdmin" class="btn btn-success" @click="goToList">
               <span>목록가기</span>
             </button>
             <button v-if="isAdmin && !isOwnProfile" class="btn btn-danger" @click="usrDelete">
               <span>삭제</span>
             </button>
-            <button class="btn btn-dark btnChg" @click="openExcelTemplatePop">
+            <button class="btn btn-dark" @click="openExcelTemplatePop">
               <span>엑셀템플릿업로드</span>
             </button>
             <select
@@ -49,13 +49,14 @@
 
           <div class="row-box px-5 row mb-5 g-0">
             <!-- 사진 -->
-            <div class="col-md text-center">
+            <div class="col-md d-md-flex justify-content-md-center position-relative photo">
               <img
                 v-if="profile?.fileSverNm"
-                class="img-profile detail"
+                class="img-profile"
                 :src="profile.fileSverNm"
+                alt="profile"
               />
-              <img v-else class="img-profile detail" :src="basicProfile" />
+              <img v-else class="img-profile" :src="basicProfile" />
             </div>
 
             <!-- 개인정보 -->
@@ -68,7 +69,6 @@
                   :readonly="true"
                 />
                 <InfoBox label="휴대전화" :modelValue="userInfo.user.userPhone" :readonly="true" />
-                <InfoBox label="직원ID" :modelValue="userInfo.user.userId" :readonly="true" />
                 <InfoBox
                   label="이메일"
                   :modelValue="`${userInfo.user.userId}@itsmart.co.kr`"
@@ -133,20 +133,14 @@
           </div>
         </div>
       </div>
-      <div id="editMode">
+      <div v-if="mode === 'edit'">
         <!-- 프로필 헤더 -->
         <h2 class="header">
           프로필
-          <div class="description d-md-flex align-items-end">
-            <button class="btn btn-secondary" @click="goToDetail">
-              <span>뒤로가기</span>
-            </button>
-            <button class="btn btn-dark" @click="excelUpload">
-              <span>일괄업로드</span>
-            </button>
-            <button v-if="isOwnProfile" class="btn btn-success" @click="goToSave">
-              <span>저장</span>
-            </button>
+          <div class="description d-md-flex">
+            <button class="btn btn-secondary" @click="goToDetail">뒤로가기</button>
+            <button class="btn btn-dark" @click="excelUpload">일괄업로드</button>
+            <button class="btn btn-success" @click="goToSave">저장</button>
           </div>
         </h2>
 
@@ -156,8 +150,13 @@
           <div class="row-box px-5 row mb-5 g-0">
             <!-- 사진 -->
             <div class="col-md d-md-flex justify-content-md-center position-relative photo">
-              <img v-if="profile?.fileSverNm" class="img-profile edit" :src="profile.fileSverNm" />
-              <img v-else class="img-profile edit" :src="basicProfile" />
+              <img
+                v-if="profile?.fileSverNm"
+                class="img-profile"
+                :src="profile.fileSverNm"
+                alt="profileUseY"
+              />
+              <img v-else class="img-profile" :src="basicProfile" alt="profileUseN" />
               <label for="imgFile" class="psitAb">
                 <div class="img-profile-btn do-hyeon-regular">+</div>
               </label>
@@ -176,7 +175,6 @@
                 <InfoBox label="이름" :modelValue="userInfo.user.userNm" :readonly="true" />
                 <InfoBox label="생년월일" v-model="userInfo.user.userBirth" :readonly="false" />
                 <InfoBox label="휴대전화" v-model="userInfo.user.userPhone" :readonly="false" />
-                <InfoBox label="직원ID" :modelValue="userInfo.user.userId" :readonly="true" />
                 <InfoBox
                   label="이메일"
                   :modelValue="`${userInfo.user.userId}@itsmart.co.kr`"
@@ -184,8 +182,12 @@
                 />
               </div>
               <div class="row mb-2 g-0">
-                <SelectBox label="소속" v-model="userInfo.user.userDepartment" :codeId="'PSIT'" />
-                <SelectBox label="직위/직급" v-model="userInfo.user.userPosition" :codeId="'ORG'" />
+                <SelectBox label="소속" v-model="userInfo.user.userDepartment" :codeId="'ORG'" />
+                <SelectBox
+                  label="직위/직급"
+                  v-model="userInfo.user.userPosition"
+                  :codeId="'PSIT'"
+                />
                 <InfoBox
                   label="입사일자"
                   :modelValue="formatDate(userInfo.user.hireDate)"
@@ -199,28 +201,28 @@
           <!-- 학력 -->
           <hr />
           <div class="mb-5 g-0">
-            <header class="description mb-md-3">학력</header>
+            <header class="description mb-md-3">
+              학력
+              <div class="action-buttons">
+                <button class="btn btn-add" @click="addEduItem">
+                  <span>+ 추가</span>
+                </button>
+                <button class="btn btn-remove" @click="clearEduItem">
+                  <span>- 제거</span>
+                </button>
+              </div>
+            </header>
             <div class="col-md px-5 g-0">
               <template v-if="userInfo.edu?.length">
                 <div v-for="(edu, i) in userInfo.edu" :key="i" class="row mb-2 g-0">
                   <SelectBox label="학교구분" :value="edu.schoolGubun" :codeId="'SCHL'" />
-                  <InfoBox label="학교명" :value="edu.schoolNm" />
-                  <InfoBox label="전공명" :value="edu.major" />
-                  <InfoBox label="입학일자" :value="formatDate(edu.schoolStartDate)" />
-                  <InfoBox label="졸업일자" :value="formatDate(edu.schoolEndDate)" />
-                  <InfoBox label="학점" :value="edu.totalGrade" />
-                  <SelectBox label="졸업상태" :value="edu.gradStatus" :codeId="'STUT'" disabled />
-                </div>
-              </template>
-              <template v-else>
-                <div class="row mb-2 g-0">
-                  <SelectBox label="학교구분" v-model="userInfo.edu.schoolGubun" :codeId="'SCHL'" />
-                  <InfoBox label="학교명" value="" />
-                  <InfoBox label="전공명" value="" />
-                  <InfoBox label="입학일자" value="" />
-                  <InfoBox label="졸업일자" value="" />
-                  <InfoBox label="학점" value="" />
-                  <SelectBox label="졸업상태" v-model="userInfo.edu.gradStatus" :codeId="'STUT'" />
+                  <InfoBox label="학교명" v-model="edu.schoolNm" :readonly="false" />
+                  <InfoBox label="전공명" v-model="edu.major" :readonly="false" />
+
+                  <InfoBox label="입학일자" v-model="edu.schoolStartDate" :readonly="false" />
+                  <InfoBox label="졸업일자" v-model="edu.schoolEndDate" :readonly="false" />
+                  <InfoBox label="학점" v-model="edu.totalGrade" :readonly="false" />
+                  <SelectBox label="졸업상태" :value="edu.gradStatus" :codeId="'STUT'" />
                 </div>
               </template>
             </div>
@@ -257,17 +259,15 @@ import basicProfile from '@/assets/images/etc/image.png'
 
 import router from '@/router/index.js'
 import apiClient from '@/utils/axios'
+import { useAuthStore } from '@/stores/auth'
 
 export default {
   name: 'UserProfile',
   components: { InfoBox, SelectBox, WorkTable, ProjectTable, QualificationTable },
-  props: {
-    loginUser: String,
-    userRole: Array,
-  },
   data() {
     return {
       basicProfile,
+      mode: 'view',
       selectedTemplate: '0',
       today: new Date().toISOString().slice(0, 10),
       userInfo: {
@@ -286,15 +286,26 @@ export default {
       calcWork: '',
     }
   },
+  created() {
+    this.authStore = useAuthStore()
+  },
   computed: {
-    isAdmin() {
-      return this.userRole?.[0] === 'ROLE_ADMIN'
+    loginUser() {
+      return this.authStore.username
     },
-    isOwnProfile() {
-      return this.profile?.userId === this.loginUser
+    userRole() {
+      return this.authStore.authorities
     },
     userId() {
       return this.$route.params.userId
+    },
+    isAdmin() {
+      console.log('isAdmin ? ', this.userRole)
+      return this.userRole?.includes('ROLE_ADMIN')
+    },
+    isOwnProfile() {
+      console.log('isOwnProfile ? ', this.loginUser, this.userId)
+      return this.loginUser === this.userId
     },
   },
   mounted() {
@@ -384,23 +395,60 @@ export default {
       const key = Object.keys(dataMap).find((k) => k.startsWith(`${groupId}:`))
       return key ? dataMap[key] : ''
     },
+    addEduItem() {
+      this.userInfo.edu.push({
+        schoolGubun: '', // 학교구분 코드
+        schoolName: '', // 학교명
+        major: '', // 전공명
+        schoolStartDate: '', // 입학일자
+        schoolEndDate: '', // 졸업일자
+        grade: '', // 학점
+        gradStatus: '', // 졸업상태 코드
+      })
+    },
+    clearEduItem() {
+      this.userInfo.edu.splice(-1, 1)
+    },
+    goToSave() {
+      alert('기능 구현중')
+    },
     goToList() {
       router.push({ name: 'ProfileList' })
     },
     goModify() {
-      // 수정 화면 이동
+      this.mode = 'edit'
+    },
+    goToDetail() {
+      this.mode = 'view'
     },
     usrDelete() {
-      // 사용자 삭제
+      alert('기능 구현중')
     },
     openExcelTemplatePop() {
-      // 엑셀 템플릿 업로드 로직
+      alert('기능 구현중')
     },
     downloadExcel() {
       // 엑셀 다운로드 로직
     },
+    excelUpload() {
+      alert('기능 구현중')
+    },
     initPw() {
-      // 비밀번호 초기화 로직
+      this.$confirmMsg('비밀번호를 초기화하겠습니까?', () => this.actionInitPw())
+    },
+
+    async actionInitPw() {
+      try {
+        const response = await apiClient.post(`/auth/password?flag=1`, {
+          userId: this.userId,
+          userPw: '',
+        })
+        if (response.data.success) {
+          this.$alertMsg('비밀번호가 초기화되었습니다.', () => this.closeModal())
+        }
+      } catch (error) {
+        console.error('비밀번호 초기화 오류:', error)
+      }
     },
   },
 }
@@ -408,9 +456,56 @@ export default {
 
 <style scoped>
 @import '@/assets/css/detail.css';
-.img-profile.detail {
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
+
+.btn {
+  min-width: 50px;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  align-items: center;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  opacity: 0.9;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 2px;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.btn-add {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.btn-add:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-remove {
+  background: #f8f9fa;
+  color: #6c757d;
+  border: 1px solid #e9ecef;
+}
+
+.btn-remove:hover {
+  background: #fff5f5;
+  color: #dc3545;
+  border-color: #f5c6cb;
+}
+
+@media (max-width: 768px) {
+  .action-buttons {
+    justify-content: center;
+  }
 }
 </style>

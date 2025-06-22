@@ -17,8 +17,8 @@
     </div>
 
     <div class="btn-box">
-      <button class="btn btn-primary" @click="onClickOkButton()">
-        {{ okButtonTitle }}
+      <button class="btn btn-sign" @click="onClickOkButton()">
+        <span>{{ okButtonTitle }}</span>
       </button>
     </div>
   </VueFinalModal>
@@ -70,11 +70,6 @@ export default {
     closeModal() {
       this.show = false
       this.$emit('update:modelValue', false)
-      this.$emit('closed')
-    },
-
-    onModalClosed() {
-      // 모달이 완전히 닫힌 후 추가 정리 작업
       this.$emit('closed')
     },
   },
@@ -181,40 +176,26 @@ export default {
 }
 
 .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 120px;
-  height: 44px;
-  padding: 0 24px;
+  padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 500;
+  border-radius: 4px;
+  font-size: 1rem;
   cursor: pointer;
-  transition: all 0.2s ease;
-  text-decoration: none;
+  transition: all 0.2s;
+  min-width: 100px;
+  margin-right: 0.2rem;
 }
 
-.btn-primary {
-  background: #3b82f6;
+.btn-sign {
+  background: linear-gradient(135deg, #667eea, #764ba2);
   color: white;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
-.btn-primary:hover {
-  background: #2563eb;
+.btn-sign:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-}
-
-.btn-primary:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
-}
-
-.btn-primary:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  color: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
 /* 반응형 디자인 */

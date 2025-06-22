@@ -266,10 +266,10 @@ export default {
   content: '⚙️';
 }
 .icon-logout::before {
-  content: '🚪';
+  content: '🔑';
 }
 .icon-lock::before {
-  content: '🔒';
+  content: '💫';
 }
 .icon-chevron::before {
   content: '▼';

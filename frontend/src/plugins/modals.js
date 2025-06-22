@@ -18,14 +18,19 @@ export default {
      * @param {function} onCancel
      */
     app.config.globalProperties.$confirmMsg = (message, onConfirm, onCancel) => {
-      const { open } = useModal({
+      const { open, close } = useModal({
         component: ConfirmModal,
         attrs: {
           message,
-          onConfirm,
-          onCancel,
-          clickToClose: false,
-          escToClose: false,
+          onConfirm: () => {
+            if (onConfirm && typeof onConfirm === 'function') {
+              onConfirm()
+            }
+            close()
+          },
+          onCancel: () => {
+            close()
+          },
         },
       })
 

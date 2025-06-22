@@ -26,7 +26,7 @@
           />
           <label for="floatingPassword">PW</label>
         </div>
-        <button type="submit" class="btn btn-dark w-100 py-3" :disabled="loading">
+        <button type="submit" class="btn btn-sign w-100 py-3" :disabled="loading">
           <span class="basic-medium">
             {{ loading ? '로그인 중...' : '로그인' }}
           </span>

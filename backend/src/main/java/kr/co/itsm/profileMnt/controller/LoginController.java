@@ -43,8 +43,9 @@ public class LoginController {
     }
 
     @PostMapping("/password")
-    public ResponseEntity<ApiResponse<Void>> changePassword(@RequestBody AuthRequest login) {
-        loginService.changeUsrPassword(login);
+    public ResponseEntity<ApiResponse<Void>> changePassword(@RequestBody AuthRequest login
+                                                            ,@RequestParam(required = false) String flag) {
+        loginService.changeUsrPassword(login, flag);
         return ResponseEntity.ok(ApiResponse.success());
     }
 }
