@@ -8,7 +8,7 @@
       style="background-color: transparent"
       @change="$emit('update:modelValue', $event.target.value)"
     >
-      <option v-for="opt in codeList" :key="opt.codeId" :value="opt.codeValue">
+      <option v-for="opt in codeList" :key="opt.codeId" :value="opt.codeId">
         {{ opt.codeValue }}
       </option>
     </select>
@@ -44,7 +44,6 @@ export default {
       try {
         const response = await apiClient.get(`/common/code/${codeId}`)
         this.codeList = response.data.data || []
-
         this.initialized = true
       } catch (error) {
         console.error('API 호출 실패:', error)

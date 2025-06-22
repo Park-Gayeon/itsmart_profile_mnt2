@@ -10,6 +10,7 @@ import kr.co.itsm.profileMnt.util.handler.CustomException;
 import kr.co.itsm.profileMnt.util.jwt.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -34,6 +35,9 @@ public class LoginServiceImpl implements LoginService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
     private final TbUserProfileInfoRepository profileRepository;
+
+    @Value("${user.default-password}")
+    private String defaultPassword;
 
     @Override
     public AuthResponse authenticate(LoginDto loginRequest) {
@@ -93,8 +97,13 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     @Transactional
-    public void changeUsrPassword(AuthRequest login) {
-        String encodedPassword = passwordEncoder.encode(login.userPw());
+    public void changeUsrPassword(AuthRequest login, String flag) {
+        String encodedPassword = "";
+        if ("1".equals(flag)) {
+            encodedPassword = passwordEncoder.encode(defaultPassword);
+        } else {
+            encodedPassword = passwordEncoder.encode(login.userPw());
+        }
         profileRepository.updatePassword(login.userId(), encodedPassword);
     }
 

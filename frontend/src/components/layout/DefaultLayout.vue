@@ -124,8 +124,6 @@ export default {
         this.$alertMsg('로그인 후 이용 가능합니다.', () => this.login())
       } else {
         this.isSidebarOpen = !this.isSidebarOpen
-        console.log(this.authStore.authorities[0])
-        console.log(this.authStore.username)
       }
     },
 

@@ -47,8 +47,8 @@
         </div>
 
         <div class="btn-box">
-          <button type="submit" class="btn btn-success" :disabled="isLoading">
-            {{ isLoading ? '저장 중...' : '저장' }}
+          <button type="submit" class="btn btn-sign" :disabled="isLoading">
+            <span>{{ isLoading ? '저장 중...' : '저장' }}</span>
           </button>
         </div>
       </form>
@@ -61,7 +61,6 @@ import { VueFinalModal } from 'vue-final-modal'
 import { useAuthStore } from '@/stores/auth.js'
 import apiClient from '@/utils/axios'
 import closeBtn from '@/assets/images/etc/icon_modal_close.png'
-import router from '@/router/index.js'
 
 export default {
   name: 'ChangePasswordModal',
@@ -263,6 +262,7 @@ export default {
   line-height: 1.5;
   color: #4b5563;
   word-break: break-word;
+  white-space: pre-line;
 }
 
 .row-box span {
@@ -300,44 +300,26 @@ export default {
   color: #dc3545;
 }
 
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  margin-top: 2rem;
-}
-
 .btn {
   padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.2s;
   min-width: 100px;
+  margin-right: 0.2rem;
 }
 
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.btn-cancel {
-  background-color: #6c757d;
+.btn-sign {
+  background: linear-gradient(135deg, #667eea, #764ba2);
   color: white;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
-.btn-cancel:hover:not(:disabled) {
-  background-color: #5a6268;
-}
-
-.btn-primary {
-  background-color: #667eea;
-  color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background-color: #5a67d8;
+.btn-sign:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
 /* 반응형 디자인 */
@@ -357,14 +339,6 @@ export default {
 
   .modal-header h2 {
     font-size: 18px;
-  }
-
-  .alert-box {
-    padding: 20px 24px;
-  }
-
-  .alert-box p {
-    font-size: 15px;
   }
 
   .btn-box {

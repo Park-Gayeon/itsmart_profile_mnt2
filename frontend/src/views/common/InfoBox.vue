@@ -1,5 +1,5 @@
 <template>
-  <div class="col-md-2 common-box input-box pt-4 me-2">
+  <div class="col-md common-box input-box pt-4 me-2">
     <span>{{ label }}</span>
     <input type="text" :value="modelValue" :readonly="readonly" @input="onInput" />
   </div>
