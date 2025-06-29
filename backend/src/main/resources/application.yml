@@ -73,8 +73,8 @@ server:
   port: 9999
 
 file:
-  upload-photo-dir: /opt/profileMnt/uploads/images
-  upload-excel-dir: /opt/profileMnt/uploads/excel
+  upload-photo-dir: /app/uploads/images
+  upload-excel-dir: /app/uploads/excel
 
 user:
   default-password: itsmart1!
