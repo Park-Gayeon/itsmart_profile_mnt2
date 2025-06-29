@@ -68,38 +68,38 @@ public class TbUserProfileInfoDto implements Serializable {
     private String modifier;
 
     /* etc */
-    private String userPositionNm;
-
-    private String userDepartmentNm;
-
+//    private String userPositionNm;
+//
+//    private String userDepartmentNm;
+//
     private int histSeq;
 
-    private int cnt;
+//    private int cnt;
+//
+//    private String projectNm; // 프로젝트 명
+//
+//    private String projectStartDate; // 프로젝트 시작일
+//
+//    private String projectEndDate; // 프로젝트 종료일
+//
+//    private int projectTotalMonth; // 수행경력
+//
+//    private int workExperienceTotalMonth; // 근무경력
+//
+//    private String projectClient; // 발주처
+//
+//    private String qualificationYn; // 정보처리기사 자격증 여부
 
-    private String projectNm; // 프로젝트 명
+//    /* paging */
+//    private int curPage;
+//    private int offset;
+//    private int limit;
 
-    private String projectStartDate; // 프로젝트 시작일
-
-    private String projectEndDate; // 프로젝트 종료일
-
-    private int projectTotalMonth; // 수행경력
-    
-    private int workExperienceTotalMonth; // 근무경력
-
-    private String projectClient; // 발주처
-
-    private String qualificationYn; // 정보처리기사 자격증 여부
-
-    /* paging */
-    private int curPage;
-    private int offset;
-    private int limit;
-
-    private TbAttachmentInfo fileInfo;
-    private List<TbUserEducationInfoDto> educationList;
-    private List<TbProjectInfoDto> projectList;
-    private List<TbUserQualificationInfoDto> qualificationList;
-    private List<TbWorkExperienceInfoDto> workExperienceList;
+//    private TbAttachmentInfo fileInfo;
+//    private List<TbUserEducationInfoDto> educationList;
+//    private List<TbProjectInfoDto> projectList;
+//    private List<TbUserQualificationInfoDto> qualificationList;
+//    private List<TbWorkExperienceInfoDto> workExperienceList;
 
     public static TbUserProfileInfo toEntity(TbUserProfileInfoDto dto, TbUserProfileInfo origin) {
         return TbUserProfileInfo.builder()

@@ -11,9 +11,6 @@ import java.util.Optional;
 
 @Mapper
 public interface CommonDAO {
-    /* 파일 테이블 file_seq 생성 */
-    @Select("SELECT COALESCE(MAX(FILE_SEQ + 1), 1) AS FILE_SEQ FROM TB_ATTACHMENT_INFO WHERE USER_ID = #{userId}")
-    int getNextSeq(String userId);
 
     /* code_group_id로 list 조회 */
     List<TbCommonCodeDto> getCodeList(Map<String, String> params);

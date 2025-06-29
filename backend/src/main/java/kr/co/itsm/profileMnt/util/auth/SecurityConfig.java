@@ -37,6 +37,7 @@ public class SecurityConfig {
                         .requestMatchers("/v3/api-docs").permitAll()
                         .requestMatchers("/api-docs/**").permitAll()
                         .requestMatchers("/api-docs").permitAll()
+                        .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/favicon.*").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
@@ -51,16 +52,6 @@ public class SecurityConfig {
 
         return http.build();
     }
-
-//    @Bean
-//    public UserDetailsService userDetailsService() {
-//        UserDetails user = User.builder()
-//                .username("user")
-//                .password(passwordEncoder().encode("1234")) // encode 사용
-//                .roles("USER")
-//                .build();
-//        return new InMemoryUserDetailsManager(user);
-//    }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
