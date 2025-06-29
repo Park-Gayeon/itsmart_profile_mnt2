@@ -1,6 +1,6 @@
 package kr.co.itsm.profileMnt.controller;
 
-import kr.co.itsm.profileMnt.dto.TbAttachmentInfoDto;
+import kr.co.itsm.profileMnt.dto.ProfileRequestDto;
 import kr.co.itsm.profileMnt.dto.TbUserProfileInfoDto;
 import kr.co.itsm.profileMnt.service.*;
 import kr.co.itsm.profileMnt.util.ApiResponse;
@@ -19,7 +19,7 @@ import java.util.List;
 @RequestMapping("/api/profile")
 public class ProfileMntController {
     private final ProfileMntService profileMntService;
-    private final CommonService commonService;
+    private final FileService fileService;
 
     @GetMapping("/list")
     public ResponseEntity<ApiResponse<List<TbUserProfileInfoDto>>> getUsrProfileInfoList() {
@@ -33,47 +33,22 @@ public class ProfileMntController {
     public ResponseEntity<ApiResponse<Void>> registerUserInfo(@RequestPart TbUserProfileInfoDto profile,
                                                               @RequestParam(required = false, value = "imgFile") MultipartFile file) {
         log.info("직원 프로필 등록");
-        int fileSeq = 0;
-        if (file != null) {
-            // file upload to server
-            TbAttachmentInfoDto tbAttachmentInfo = commonService.saveImageFile(file);
-
-            // 파일 정보 DB 저장
-            tbAttachmentInfo.setUserId(profile.getUserId());
-            fileSeq = commonService.insertUsrFileInfo(tbAttachmentInfo);
-        }
-        profile.setFileSeq(fileSeq);
-        profileMntService.insertUsrProfile(profile);
-
+        profileMntService.insertUsrProfile(profile, file);
         return ResponseEntity.ok(ApiResponse.success());
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<ApiResponse<List<Object>>> getDetailInfo(@PathVariable("userId") String userId) {
+    public ResponseEntity<ApiResponse<ProfileRequestDto>> getDetailInfo(@PathVariable("userId") String userId) {
         log.info("사용자 프로필 조회");
-        return ResponseEntity.ok(ApiResponse.success(profileMntService.getUsrProfileDetail(userId)));
+        ProfileRequestDto info = profileMntService.getUsrProfileDetail(userId);
+        return ResponseEntity.ok(ApiResponse.success(info));
     }
 
-
-
-    @PutMapping("/{user_id}")
-    public ResponseEntity<ApiResponse<Void>> saveUsrProfile(@PathVariable("user_id") String user_id,
-                                                   @RequestPart TbUserProfileInfoDto profile,
-                                                   @RequestParam(required = false, value = "imgFile") MultipartFile file) {
+    @PostMapping("/{user_id}")
+    public ResponseEntity<ApiResponse<Void>> saveUsrProfile(@RequestPart("payload") ProfileRequestDto payload,
+                                                            @RequestPart(value = "imgFile", required = false) MultipartFile file){
         log.info("사용자 프로필 수정");
-
-        int fileSeq = 0;
-        if (file != null) {
-            // file upload to server
-            TbAttachmentInfoDto tbAttachmentInfo = commonService.saveImageFile(file);
-
-            // 파일 정보 DB 저장
-            tbAttachmentInfo.setUserId(profile.getUserId());
-            fileSeq = commonService.insertUsrFileInfo(tbAttachmentInfo);
-        }
-        profile.setFileSeq(fileSeq);
-        profileMntService.updateUsrProfile(profile);
-
+        profileMntService.setUsrProfileDetail(payload, file);
         return ResponseEntity.ok(ApiResponse.success());
     }
 }

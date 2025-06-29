@@ -51,12 +51,10 @@
             <!-- 사진 -->
             <div class="col-md d-md-flex justify-content-md-center position-relative photo">
               <img
-                v-if="profile?.fileSverNm"
                 class="img-profile"
-                :src="profile.fileSverNm"
-                alt="profile"
+                :src="previewUrl"
+                :alt="profile?.fileSverNm ? 'profileUseY' : 'profileUseN'"
               />
-              <img v-else class="img-profile" :src="basicProfile" />
             </div>
 
             <!-- 개인정보 -->
@@ -103,12 +101,20 @@
             <div class="col-md px-5 g-0">
               <template v-if="userInfo.edu?.length">
                 <div v-for="(edu, i) in userInfo.edu" :key="i" class="row mb-2 g-0">
-                  <SelectBox label="졸업상태" v-model="edu.schoolGubun" :codeId="'SCHL'" disabled />
-                  <InfoBox label="학교명" :value="edu.schoolNm" />
-                  <InfoBox label="전공명" :value="edu.major" />
-                  <InfoBox label="입학일자" :value="formatDate(edu.schoolStartDate)" />
-                  <InfoBox label="졸업일자" :value="formatDate(edu.schoolEndDate)" />
-                  <InfoBox label="학점" :value="edu.totalGrade" />
+                  <SelectBox label="학교구분" v-model="edu.schoolGubun" :codeId="'SCHL'" disabled />
+                  <InfoBox label="학교명" :modelValue="edu.schoolNm" :readonly="true" />
+                  <InfoBox label="전공명" :modelValue="edu.major" :readonly="true" />
+                  <InfoBox
+                    label="입학일자"
+                    :modelValue="formatDate(edu.schoolStartDate)"
+                    :readonly="true"
+                  />
+                  <InfoBox
+                    label="졸업일자"
+                    :modelValue="formatDate(edu.schoolEndDate)"
+                    :readonly="true"
+                  />
+                  <InfoBox label="학점" :modelValue="edu.totalGrade" :readonly="true" />
                   <SelectBox label="졸업상태" v-model="edu.gradStatus" :codeId="'STUT'" disabled />
                 </div>
               </template>
@@ -151,12 +157,10 @@
             <!-- 사진 -->
             <div class="col-md d-md-flex justify-content-md-center position-relative photo">
               <img
-                v-if="profile?.fileSverNm"
                 class="img-profile"
-                :src="profile.fileSverNm"
-                alt="profileUseY"
+                :src="previewUrl"
+                :alt="profile?.fileSverNm ? 'profileUseY' : 'profileUseN'"
               />
-              <img v-else class="img-profile" :src="basicProfile" alt="profileUseN" />
               <label for="imgFile" class="psitAb">
                 <div class="img-profile-btn do-hyeon-regular">+</div>
               </label>
@@ -166,6 +170,7 @@
                 name="imgFile"
                 class="d-none"
                 accept=".jpg, .png, .jpeg"
+                @change="onFileChange"
               />
             </div>
 
@@ -215,14 +220,14 @@
             <div class="col-md px-5 g-0">
               <template v-if="userInfo.edu?.length">
                 <div v-for="(edu, i) in userInfo.edu" :key="i" class="row mb-2 g-0">
-                  <SelectBox label="학교구분" :value="edu.schoolGubun" :codeId="'SCHL'" />
+                  <SelectBox label="학교구분" v-model="edu.schoolGubun" :codeId="'SCHL'" />
                   <InfoBox label="학교명" v-model="edu.schoolNm" :readonly="false" />
                   <InfoBox label="전공명" v-model="edu.major" :readonly="false" />
 
                   <InfoBox label="입학일자" v-model="edu.schoolStartDate" :readonly="false" />
                   <InfoBox label="졸업일자" v-model="edu.schoolEndDate" :readonly="false" />
                   <InfoBox label="학점" v-model="edu.totalGrade" :readonly="false" />
-                  <SelectBox label="졸업상태" :value="edu.gradStatus" :codeId="'STUT'" />
+                  <SelectBox label="졸업상태" v-model="edu.gradStatus" :codeId="'STUT'" />
                 </div>
               </template>
             </div>
@@ -262,55 +267,6 @@ import apiClient from '@/utils/axios'
 import { useAuthStore } from '@/stores/auth'
 
 export default {
-  name: 'UserProfile',
-  components: { InfoBox, SelectBox, WorkTable, ProjectTable, QualificationTable },
-  data() {
-    return {
-      basicProfile,
-      mode: 'view',
-      selectedTemplate: '0',
-      today: new Date().toISOString().slice(0, 10),
-      userInfo: {
-        user: {
-          userPositionNm: '',
-          userDepartmentNm: '',
-        },
-        edu: [],
-        qualification: [],
-        project: [],
-        work: [],
-      },
-      profile: {},
-      excel: [],
-      calcProject: '',
-      calcWork: '',
-    }
-  },
-  created() {
-    this.authStore = useAuthStore()
-  },
-  computed: {
-    loginUser() {
-      return this.authStore.username
-    },
-    userRole() {
-      return this.authStore.authorities
-    },
-    userId() {
-      return this.$route.params.userId
-    },
-    isAdmin() {
-      console.log('isAdmin ? ', this.userRole)
-      return this.userRole?.includes('ROLE_ADMIN')
-    },
-    isOwnProfile() {
-      console.log('isOwnProfile ? ', this.loginUser, this.userId)
-      return this.loginUser === this.userId
-    },
-  },
-  mounted() {
-    this.loadDataSequentially()
-  },
   methods: {
     async loadDataSequentially() {
       try {
@@ -323,23 +279,66 @@ export default {
         console.error('초기 데이터 로딩 실패:', error)
       }
     },
+
+    onFileChange(e) {
+      const fileInfo = e.target.files[0]
+      const maxSize = 1024 * 1024 * 2 // 2MB
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg']
+
+      // 선택 취소
+      if (!fileInfo) {
+        this.previewUrl = this.basicProfile
+        this.selectedFile = null
+        return
+      }
+
+      // 파일명 검사
+      if (fileInfo.name.length > 20 || fileInfo.name.includes(' ')) {
+        this.$alertMsg('파일명은 공백을 제외한 20자 이내로 작성해주세요.')
+        return
+      }
+
+      // 파일 크기 검사
+      if (fileInfo.size > maxSize) {
+        this.$alertMsg('이미지 사진의 용량이 2MB를 초과합니다.')
+        return
+      }
+
+      // 파일 타입 검사
+      if (!allowedTypes.includes(fileInfo.type)) {
+        this.$alertMsg('이미지 파일만 업로드 가능합니다.')
+        return
+      }
+
+      // 미리보기
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        this.previewUrl = e.target.result
+      }
+      reader.readAsDataURL(fileInfo)
+
+      this.selectedFile = fileInfo
+    },
+
     formatDate(str) {
       if (!str) return ''
       const s = str.replaceAll('-', '').replaceAll('.', '')
       return `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6)}`
     },
+
     async getInfo() {
       try {
         const response = await apiClient.get(`/profile/${this.userId}`)
-        this.userInfo.user = response.data.data[0]
-        this.userInfo.edu = response.data.data[1]
-        this.userInfo.qualification = response.data.data[2]
-        this.userInfo.project = response.data.data[3]
-        this.userInfo.work = response.data.data[4]
+        this.userInfo.user = response.data.data.profileInfo
+        this.userInfo.edu = response.data.data.educationInfo
+        this.userInfo.qualification = response.data.qualificationInfo
+        this.userInfo.project = response.data.data.projectInfo
+        this.userInfo.work = response.data.data.experienceInfo
       } catch (error) {
         console.error('프로필 조회 실패:', error)
       }
     },
+
     async getFile() {
       try {
         const response = await apiClient.get(`/file/profile/${this.userId}`)
@@ -370,8 +369,6 @@ export default {
 
         this.project = project.data.data
         this.work = work.data.data
-        console.log('project 경력 : ', this.project)
-        console.log('work 경력 : ', this.work)
       } catch (error) {
         console.error('경력 조회 실패:', error)
       }
@@ -391,48 +388,96 @@ export default {
         console.error('API 호출 실패:', error)
       }
     },
+
     getValueByGroupId(dataMap, groupId) {
       const key = Object.keys(dataMap).find((k) => k.startsWith(`${groupId}:`))
       return key ? dataMap[key] : ''
     },
+
+    /* 항목 추가 */
     addEduItem() {
       this.userInfo.edu.push({
         schoolGubun: '', // 학교구분 코드
-        schoolName: '', // 학교명
+        schoolNm: '', // 학교명
         major: '', // 전공명
         schoolStartDate: '', // 입학일자
         schoolEndDate: '', // 졸업일자
-        grade: '', // 학점
+        totalGrade: '', // 학점
         gradStatus: '', // 졸업상태 코드
       })
     },
+
+    /* 항목 제거 */
     clearEduItem() {
       this.userInfo.edu.splice(-1, 1)
     },
+
     goToSave() {
-      alert('기능 구현중')
+      this.$confirmMsg('저장하시겠습니까?', () => this.goToSaveReq())
     },
+
+    async goToSaveReq() {
+      const payload = {
+        profileInfo: this.userInfo.user,
+        educationInfo: this.userInfo.edu,
+        qualificationInfo: this.userInfo.qualification,
+        experienceInfo: this.userInfo.work,
+        projectInfo: this.userInfo.project,
+      }
+      try {
+        const formData = new FormData()
+        formData.append(
+          'payload',
+          new Blob([JSON.stringify(payload)], { type: 'application/json' }),
+        )
+
+        // 이미지가 선택된 경우만 추가
+        if (this.selectedFile) {
+          formData.append('imgFile', this.selectedFile)
+        }
+
+        const response = await apiClient.post(`/profile/${this.userId}`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        if (response.data.success) {
+          this.$alertMsg('저장되었습니다.', () => this.loadDataSequentially())
+        }
+      } catch (error) {
+        console.error('저장 오류:', error)
+        this.$alertMsg('오류가 발생했습니다. 시스템관리자에게 문의바랍니다.')
+      }
+    },
+
     goToList() {
       router.push({ name: 'ProfileList' })
     },
+
     goModify() {
       this.mode = 'edit'
     },
+
     goToDetail() {
       this.mode = 'view'
     },
+
     usrDelete() {
       alert('기능 구현중')
     },
+
     openExcelTemplatePop() {
       alert('기능 구현중')
     },
+
     downloadExcel() {
-      // 엑셀 다운로드 로직
+      alert('기능 구현중')
     },
+
     excelUpload() {
       alert('기능 구현중')
     },
+
     initPw() {
       this.$confirmMsg('비밀번호를 초기화하겠습니까?', () => this.actionInitPw())
     },
@@ -450,6 +495,62 @@ export default {
         console.error('비밀번호 초기화 오류:', error)
       }
     },
+  },
+  name: 'UserProfile',
+  components: { InfoBox, SelectBox, WorkTable, ProjectTable, QualificationTable },
+  data() {
+    return {
+      basicProfile,
+      previewUrl: '', // 미리보기용 이미지 URL
+      selectedFile: null, // 선택된 파일 객체
+      mode: 'view',
+      selectedTemplate: '0',
+      today: new Date().toISOString().slice(0, 10),
+      userInfo: {
+        user: {
+          userPositionNm: '',
+          userDepartmentNm: '',
+        },
+        edu: [],
+        qualification: [],
+        project: [],
+        work: [],
+      },
+      profile: {},
+      excel: [],
+      calcProject: '',
+      calcWork: '',
+    }
+  },
+
+  created() {
+    this.authStore = useAuthStore()
+  },
+
+  computed: {
+    loginUser() {
+      return this.authStore.username
+    },
+    userRole() {
+      return this.authStore.authorities
+    },
+    userId() {
+      return this.$route.params.userId
+    },
+    isAdmin() {
+      console.log('isAdmin ? ', this.userRole)
+      return this.userRole?.includes('ROLE_ADMIN')
+    },
+    isOwnProfile() {
+      console.log('isOwnProfile ? ', this.loginUser, this.userId)
+      return this.loginUser === this.userId
+    },
+  },
+  mounted() {
+    this.previewUrl = this.profile?.fileSverNm
+      ? `/uploads/images/${this.profile.fileSverNm}`
+      : this.basicProfile
+    this.loadDataSequentially()
   },
 }
 </script>

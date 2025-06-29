@@ -22,6 +22,9 @@ services:
       dockerfile: dockerfile
     ports:
       - "9999:9999"
+    volumes:
+      - /home/gypark/uploads/images:/app/uploads/images # wsl/Ubuntu 기준으로 경로를 명시함.
+      - /home/gypark/uploads/excel:/app/uploads/excel
     depends_on:
       - itsm-mysql
     networks:

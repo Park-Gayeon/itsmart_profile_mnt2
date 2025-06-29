@@ -28,21 +28,26 @@ public class TbUserProfileInfo {
     @Column(name = "user_nm", nullable = false, length = 6)
     private String userNm;
 
+    @Setter
     @Column(name = "user_position", nullable = false, length = 3)
     private String userPosition;
 
+    @Setter
     @Column(name = "user_birth", nullable = false, length = 8)
     private String userBirth;
 
+    @Setter
     @Column(name = "user_department", nullable = false, length = 3)
     private String userDepartment;
 
     @Column(name = "hire_date", nullable = false, length = 8)
     private String hireDate;
 
+    @Setter
     @Column(name = "user_phone", nullable = false, length = 11)
     private String userPhone;
 
+    @Setter
     @Column(name = "user_address", nullable = false, length = 50)
     private String userAddress;
 
@@ -54,18 +59,21 @@ public class TbUserProfileInfo {
     @Column(name = "use_yn", nullable = false)
     private Character useYn;
 
+    @Setter
     @Column(name = "file_seq")
     private Integer fileSeq;
 
     @Column(name = "created_date", nullable = false)
     private Instant createdDate;
 
+    @Setter
     @Column(name = "modified_date", nullable = false)
     private Instant modifiedDate;
 
     @Column(name = "creator", nullable = false, length = 10)
     private String creator;
 
+    @Setter
     @Column(name = "modifier", nullable = false, length = 10)
     private String modifier;
 
