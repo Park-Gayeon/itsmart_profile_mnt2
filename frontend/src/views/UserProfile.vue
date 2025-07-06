@@ -546,10 +546,12 @@ export default {
       return this.loginUser === this.userId
     },
   },
+  watch: {
+    'profile.fileSverNm'(newVal) {
+      this.previewUrl = newVal ? `/uploads/images/${newVal}` : this.basicProfile
+    },
+  },
   mounted() {
-    this.previewUrl = this.profile?.fileSverNm
-      ? `/uploads/images/${this.profile.fileSverNm}`
-      : this.basicProfile
     this.loadDataSequentially()
   },
 }
