@@ -23,8 +23,8 @@ services:
     ports:
       - "9999:9999"
     volumes:
-      - /home/gypark/uploads/images:/app/uploads/images # wsl/Ubuntu 기준으로 경로를 명시함.
-      - /home/gypark/uploads/excel:/app/uploads/excel
+      - /opt/profileMnt/uploads/images:/app/uploads/images
+      - /opt/profileMnt/uploads/excel:/app/uploads/excel
     depends_on:
       - itsm-mysql
     networks:
@@ -37,6 +37,9 @@ services:
       dockerfile: dockerfile
     ports:
       - "99:80"
+    volumes:
+      - /opt/profileMnt/uploads/images:/app/uploads/images
+      - /opt/profileMnt/uploads/excel:/app/uploads/excel
     depends_on:
       - itsm-backend
     networks:
