@@ -47,8 +47,8 @@
             </div>
           </header>
 
+          <!-- 프로필 -->
           <div class="row-box px-5 row mb-5 g-0">
-            <!-- 사진 -->
             <div class="col-md d-md-flex justify-content-md-center position-relative photo">
               <img
                 class="img-profile"
@@ -56,87 +56,46 @@
                 :alt="profile?.fileSverNm ? 'profileUseY' : 'profileUseN'"
               />
             </div>
-
-            <!-- 개인정보 -->
-            <div class="col-md-10 g-0">
-              <div class="row mb-2 g-0">
-                <InfoBox label="이름" :modelValue="userInfo.user.userNm" :readonly="true" />
-                <InfoBox
-                  label="생년월일"
-                  :modelValue="formatDate(userInfo.user.userBirth)"
-                  :readonly="true"
-                />
-                <InfoBox label="휴대전화" :modelValue="userInfo.user.userPhone" :readonly="true" />
-                <InfoBox
-                  label="이메일"
-                  :modelValue="`${userInfo.user.userId}@itsmart.co.kr`"
-                  :readonly="true"
-                />
-              </div>
-              <div class="row mb-2 g-0">
-                <InfoBox
-                  label="소속"
-                  :modelValue="userInfo.user.userDepartmentNm"
-                  :readonly="true"
-                />
-                <InfoBox
-                  label="직위/직급"
-                  :modelValue="userInfo.user.userPositionNm"
-                  :readonly="true"
-                />
-                <InfoBox
-                  label="입사일자"
-                  :modelValue="formatDate(userInfo.user.hireDate)"
-                  :readonly="true"
-                />
-                <InfoBox label="주소" :modelValue="userInfo.user.userAddress" :readonly="true" />
-              </div>
-            </div>
+            <ProfileTable v-model:user="userInfo.user" />
           </div>
-
-          <!-- 학력 -->
+          <!-- 프로필 끝 -->
           <hr />
+          <!-- 학력 -->
           <div class="mb-5 g-0">
             <header class="description mb-md-3">학력</header>
-            <div class="col-md px-5 g-0">
-              <template v-if="userInfo.edu?.length">
-                <div v-for="(edu, i) in userInfo.edu" :key="i" class="row mb-2 g-0">
-                  <SelectBox label="학교구분" v-model="edu.schoolGubun" :codeId="'SCHL'" disabled />
-                  <InfoBox label="학교명" :modelValue="edu.schoolNm" :readonly="true" />
-                  <InfoBox label="전공명" :modelValue="edu.major" :readonly="true" />
-                  <InfoBox
-                    label="입학일자"
-                    :modelValue="formatDate(edu.schoolStartDate)"
-                    :readonly="true"
-                  />
-                  <InfoBox
-                    label="졸업일자"
-                    :modelValue="formatDate(edu.schoolEndDate)"
-                    :readonly="true"
-                  />
-                  <InfoBox label="학점" :modelValue="edu.totalGrade" :readonly="true" />
-                  <SelectBox label="졸업상태" v-model="edu.gradStatus" :codeId="'STUT'" disabled />
-                </div>
-              </template>
-              <p v-else class="text-center">작성된 내용이 없습니다</p>
-            </div>
+            <EduTable v-model:edu="userInfo.edu" />
           </div>
+          <!-- 학력 끝 -->
           <hr />
           <!-- 자격사항 -->
           <div class="row mb-5 g-0">
-            <QualificationTable :qualification="userInfo.qualification" />
+            <header class="description mb-md-3">자격사항</header>
+            <QualificationTable v-model:qualification="userInfo.qualification" />
           </div>
+          <!-- 자격사항 끝 -->
           <hr />
           <!-- 근무경력 -->
           <div class="row mb-5 g-0">
-            <WorkTable :experiences="userInfo.work" :careerSummary="calcWork" />
+            <header class="description mb-md-3">
+              <div class="left-group">
+                근무경력 <span>{{ formattedCareerSummary(this.calcWork) }}</span>
+              </div>
+            </header>
+            <WorkTable v-model:experiences="userInfo.work" />
           </div>
           <!-- 근무경력 끝 -->
           <hr />
           <!-- 수행경력 -->
           <div class="mb-5 g-0">
-            <ProjectTable :project="userInfo.project" :careerSummary="calcProject" />
+            <header class="description mb-md-3">
+              <div class="left-group">
+                수행경력
+                <span>{{ formattedCareerSummary(this.calcProject) }}</span>
+              </div>
+            </header>
+            <ProjectTable v-model:project="userInfo.project" />
           </div>
+          <!-- 수행경력 끝 -->
         </div>
       </div>
       <div v-if="mode === 'edit'">
@@ -173,36 +132,8 @@
                 @change="onFileChange"
               />
             </div>
-
-            <!-- 개인정보 -->
-            <div class="col-md-10 g-0">
-              <div class="row mb-2 g-0">
-                <InfoBox label="이름" :modelValue="userInfo.user.userNm" :readonly="true" />
-                <InfoBox label="생년월일" v-model="userInfo.user.userBirth" :readonly="false" />
-                <InfoBox label="휴대전화" v-model="userInfo.user.userPhone" :readonly="false" />
-                <InfoBox
-                  label="이메일"
-                  :modelValue="`${userInfo.user.userId}@itsmart.co.kr`"
-                  :readonly="true"
-                />
-              </div>
-              <div class="row mb-2 g-0">
-                <SelectBox label="소속" v-model="userInfo.user.userDepartment" :codeId="'ORG'" />
-                <SelectBox
-                  label="직위/직급"
-                  v-model="userInfo.user.userPosition"
-                  :codeId="'PSIT'"
-                />
-                <InfoBox
-                  label="입사일자"
-                  :modelValue="formatDate(userInfo.user.hireDate)"
-                  :readonly="true"
-                />
-                <InfoBox label="주소" v-model="userInfo.user.userAddress" :readonly="false" />
-              </div>
-            </div>
+            <ProfileTable v-model:user="userInfo.user" mode="edit" />
           </div>
-
           <!-- 학력 -->
           <hr />
           <div class="mb-5 g-0">
@@ -217,36 +148,60 @@
                 </button>
               </div>
             </header>
-            <div class="col-md px-5 g-0">
-              <template v-if="userInfo.edu?.length">
-                <div v-for="(edu, i) in userInfo.edu" :key="i" class="row mb-2 g-0">
-                  <SelectBox label="학교구분" v-model="edu.schoolGubun" :codeId="'SCHL'" />
-                  <InfoBox label="학교명" v-model="edu.schoolNm" :readonly="false" />
-                  <InfoBox label="전공명" v-model="edu.major" :readonly="false" />
-
-                  <InfoBox label="입학일자" v-model="edu.schoolStartDate" :readonly="false" />
-                  <InfoBox label="졸업일자" v-model="edu.schoolEndDate" :readonly="false" />
-                  <InfoBox label="학점" v-model="edu.totalGrade" :readonly="false" />
-                  <SelectBox label="졸업상태" v-model="edu.gradStatus" :codeId="'STUT'" />
-                </div>
-              </template>
-            </div>
+            <EduTable v-model:edu="userInfo.edu" mode="edit" />
           </div>
           <hr />
           <!-- 자격사항 -->
           <div class="row mb-5 g-0">
-            <QualificationTable :qualification="userInfo.qualification" />
+            <header class="description mb-md-3">
+              자격사항
+              <div class="action-buttons">
+                <button class="btn btn-add" @click="addQaulItem">
+                  <span>+ 추가</span>
+                </button>
+                <button class="btn btn-remove" @click="clearQaulItem">
+                  <span>- 제거</span>
+                </button>
+              </div>
+            </header>
+            <QualificationTable v-model:qualification="userInfo.qualification" mode="edit" />
           </div>
           <hr />
           <!-- 근무경력 -->
           <div class="row mb-5 g-0">
-            <WorkTable :experiences="userInfo.work" :careerSummary="calcWork" />
+            <header class="description mb-md-3">
+              <div class="left-group">
+                근무경력 <span>{{ formattedCareerSummary(this.calcWork) }}</span>
+              </div>
+              <div class="action-buttons">
+                <button class="btn btn-add" @click="addWorkItem">
+                  <span>+ 추가</span>
+                </button>
+                <button class="btn btn-remove" @click="clearWorkItem">
+                  <span>- 제거</span>
+                </button>
+              </div>
+            </header>
+            <WorkTable v-model:experiences="userInfo.work" mode="edit" />
           </div>
           <!-- 근무경력 끝 -->
           <hr />
           <!-- 수행경력 -->
           <div class="mb-5 g-0">
-            <ProjectTable :project="userInfo.project" :careerSummary="calcProject" />
+            <header class="description mb-md-3">
+              <div class="left-group">
+                수행경력 <span>{{ formattedCareerSummary(this.calcProject) }}</span>
+              </div>
+              <div class="action-buttons">
+                <button class="btn btn-add" @click="addProjectItem">
+                  <span>+ 추가</span>
+                </button>
+                <button class="btn btn-remove" @click="clearProjectItem">
+                  <span>- 제거</span>
+                </button>
+              </div>
+            </header>
+            <ProjectTable v-model:project="userInfo.project" mode="edit" />
           </div>
         </div>
       </div>
@@ -255,6 +210,8 @@
 </template>
 
 <script>
+import ProfileTable from './common/ProfileTable.vue'
+import EduTable from './common/EduTable.vue'
 import InfoBox from './common/InfoBox.vue'
 import SelectBox from './common/SelectBox.vue'
 import ProjectTable from './common/ProjectTable.vue'
@@ -272,12 +229,85 @@ export default {
       try {
         await this.getInfo()
         await this.getCodeNm()
-        this.getFile()
-        this.getExcel()
-        this.calc()
+        await this.getFile()
+        await this.getExcel()
+        await this.calc()
       } catch (error) {
         console.error('초기 데이터 로딩 실패:', error)
       }
+    },
+    async getInfo() {
+      try {
+        const response = await apiClient.get(`/profile/${this.userId}`)
+        this.userInfo.user = response.data.data.profileInfo
+        this.userInfo.edu = response.data.data.educationInfo
+        this.userInfo.qualification = response.data.data.qualificationInfo
+        this.userInfo.project = response.data.data.projectInfo
+        this.userInfo.work = response.data.data.experienceInfo
+      } catch (error) {
+        console.error('프로필 조회 실패:', error)
+      }
+    },
+    async getFile() {
+      try {
+        const response = await apiClient.get(`/file/profile/${this.userId}`)
+
+        if (response.data.data) {
+          this.profile = response.data.data
+        }
+      } catch (error) {
+        console.error('파일 조회 실패:', error)
+      }
+    },
+    async getExcel() {
+      try {
+        const response = await apiClient.get(`/file/excel/${this.userId}`)
+        if (response.data.data) {
+          this.excel = response.data.data
+        }
+      } catch (error) {
+        console.error('엑셀 목록 조회 실패:', error)
+      }
+    },
+    async calc() {
+      try {
+        const [project, work] = await Promise.all([
+          apiClient.get(`/project/calc/${this.userId}`),
+          apiClient.get(`/work/calc/${this.userId}`),
+        ])
+
+        this.project = project.data.data
+        this.work = work.data.data
+      } catch (error) {
+        console.error('경력 조회 실패:', error)
+      }
+    },
+
+    async getCodeNm() {
+      const payload = [
+        { codeGroupId: 'PSIT', codeId: this.userInfo.user.userPosition },
+        { codeGroupId: 'ORG', codeId: this.userInfo.user.userDepartment },
+      ]
+      try {
+        const response = await apiClient.post('/common/codeNm', payload)
+        const codeMap = response.data.data
+
+        this.userInfo.user.userPositionNm = this.getValueByGroupId(codeMap, 'PSIT')
+        this.userInfo.user.userDepartmentNm = this.getValueByGroupId(codeMap, 'ORG')
+      } catch (error) {
+        console.error('API 호출 실패:', error)
+      }
+    },
+
+    getValueByGroupId(dataMap, groupId) {
+      const key = Object.keys(dataMap).find((k) => k.startsWith(`${groupId}:`))
+      return key ? dataMap[key] : ''
+    },
+
+    formatDate(str) {
+      if (!str) return ''
+      const s = str.replaceAll('-', '').replaceAll('.', '')
+      return `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6)}`
     },
 
     onFileChange(e) {
@@ -320,78 +350,18 @@ export default {
       this.selectedFile = fileInfo
     },
 
-    formatDate(str) {
-      if (!str) return ''
-      const s = str.replaceAll('-', '').replaceAll('.', '')
-      return `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6)}`
-    },
-
-    async getInfo() {
-      try {
-        const response = await apiClient.get(`/profile/${this.userId}`)
-        this.userInfo.user = response.data.data.profileInfo
-        this.userInfo.edu = response.data.data.educationInfo
-        this.userInfo.qualification = response.data.qualificationInfo
-        this.userInfo.project = response.data.data.projectInfo
-        this.userInfo.work = response.data.data.experienceInfo
-      } catch (error) {
-        console.error('프로필 조회 실패:', error)
+    formattedCareerSummary(month) {
+      const totalMonth = Number(month)
+      if (!totalMonth || totalMonth <= 0) {
+        return '0개월'
       }
-    },
+      const year = Math.floor(totalMonth / 12)
+      const months = totalMonth % 12
 
-    async getFile() {
-      try {
-        const response = await apiClient.get(`/file/profile/${this.userId}`)
-
-        if (response.data.data) {
-          this.profile = response.data.data
-        }
-      } catch (error) {
-        console.error('파일 조회 실패:', error)
-      }
-    },
-    async getExcel() {
-      try {
-        const response = await apiClient.get(`/file/excel/${this.userId}`)
-        if (response.data.data) {
-          this.excel = response.data.data
-        }
-      } catch (error) {
-        console.error('엑셀 목록 조회 실패:', error)
-      }
-    },
-    async calc() {
-      try {
-        const [project, work] = await Promise.all([
-          apiClient.get(`/project/calc/${this.userId}`),
-          apiClient.get(`/work/calc/${this.userId}`),
-        ])
-
-        this.project = project.data.data
-        this.work = work.data.data
-      } catch (error) {
-        console.error('경력 조회 실패:', error)
-      }
-    },
-    async getCodeNm() {
-      const payload = [
-        { codeGroupId: 'PSIT', codeId: this.userInfo.user.userPosition },
-        { codeGroupId: 'ORG', codeId: this.userInfo.user.userDepartment },
-      ]
-      try {
-        const response = await apiClient.post('/common/codeNm', payload)
-        const codeMap = response.data.data
-
-        this.userInfo.user.userPositionNm = this.getValueByGroupId(codeMap, 'PSIT')
-        this.userInfo.user.userDepartmentNm = this.getValueByGroupId(codeMap, 'ORG')
-      } catch (error) {
-        console.error('API 호출 실패:', error)
-      }
-    },
-
-    getValueByGroupId(dataMap, groupId) {
-      const key = Object.keys(dataMap).find((k) => k.startsWith(`${groupId}:`))
-      return key ? dataMap[key] : ''
+      let result = ''
+      if (year > 0) result += `${year}년 `
+      if (months > 0) result += `${months}개월`
+      return result
     },
 
     /* 항목 추가 */
@@ -407,9 +377,38 @@ export default {
       })
     },
 
+    addQaulItem() {
+      this.userInfo.qualification.push({
+        qualificationNm: '', // 자격증명
+        issuer: '', // 발행기관
+        acquisitionDate: '', // 취득일자
+        expiryDate: '', // 만료일자
+      })
+    },
+
+    addWorkItem() {
+      this.userInfo.work.push({
+        workPlace: '', // 회사명
+        workPosition: '', // 직급
+        workAssignedTask: '', // 담당업무
+        workStartDate: '', // 입사일자
+        workEndDate: '', // 퇴사일자
+      })
+    },
+
+    addProjectItem() {},
+
     /* 항목 제거 */
     clearEduItem() {
       this.userInfo.edu.splice(-1, 1)
+    },
+
+    clearQaulItem() {
+      this.userInfo.qualification.splice(-1, 1)
+    },
+
+    clearWorkItem() {
+      this.userInfo.work.splice(-1, 1)
     },
 
     goToSave() {
@@ -435,7 +434,6 @@ export default {
         if (this.selectedFile) {
           formData.append('imgFile', this.selectedFile)
         }
-
         const response = await apiClient.post(`/profile/${this.userId}`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
@@ -497,7 +495,15 @@ export default {
     },
   },
   name: 'UserProfile',
-  components: { InfoBox, SelectBox, WorkTable, ProjectTable, QualificationTable },
+  components: {
+    ProfileTable,
+    InfoBox,
+    SelectBox,
+    EduTable,
+    WorkTable,
+    ProjectTable,
+    QualificationTable,
+  },
   data() {
     return {
       basicProfile,
@@ -546,13 +552,15 @@ export default {
       return this.loginUser === this.userId
     },
   },
+
+  mounted() {
+    this.loadDataSequentially()
+  },
+
   watch: {
     'profile.fileSverNm'(newVal) {
       this.previewUrl = newVal ? `/uploads/images/${newVal}` : this.basicProfile
     },
-  },
-  mounted() {
-    this.loadDataSequentially()
   },
 }
 </script>

@@ -1,123 +1,114 @@
 <template>
-  <div>
-    <header class="description mb-md-3">
-      <div class="left-group">
-        수행경력
-        <span name="pj_career">{{ formattedCareerSummary }}</span>
-      </div>
-    </header>
+  <div class="table-responsive px-5">
+    <!-- 현재 진행중인 사업 내역 -->
+    <header class="basic-medium"><span class="star">*</span>현재 진행중인 사업 내역</header>
+    <table class="table table-hover mb-5 twin">
+      <colgroup>
+        <col style="width: 5%" />
+        <col style="width: 15%" />
+        <col style="width: 24%" />
+        <col style="width: 15%" />
+        <col style="width: 25%" />
+        <col style="width: 10%" />
+        <col style="width: 6%" />
+      </colgroup>
+      <thead>
+        <tr>
+          <th scope="col">NO</th>
+          <th scope="col">발주처</th>
+          <th scope="col">사업명</th>
+          <th scope="col">참여기간</th>
+          <th scope="col">담당업무</th>
+          <th scope="col">역할</th>
+          <th scope="col">기술</th>
+        </tr>
+      </thead>
+      <tbody class="table-group-divider">
+        <tr v-if="currentProjects.length === 0">
+          <td colspan="7" class="figure-caption text-center">진행중인 사업이 없습니다</td>
+        </tr>
+        <tr
+          v-else
+          v-for="(project, index) in currentProjects"
+          :key="`current-${project.projectSeq}`"
+        >
+          <td>{{ index + 1 }}</td>
+          <td>{{ project.projectClient }}</td>
+          <td>{{ project.projectNm }}</td>
+          <td>
+            {{ formatDate(project.projectStartDate) }}
+            ~ {{ formatDate(project.projectEndDate) }}
+          </td>
+          <td>
+            {{ project.assignedTaskLarNm }}
+            <span v-if="project.assignedTaskMidNm"> > {{ project.assignedTaskMidNm }} </span>
+          </td>
+          <td>{{ project.projectRoleNm }}</td>
+          <td>
+            <button
+              type="button"
+              class="btn btn-warning btn-sm"
+              @click="viewSkill(project.projectSeq, '0')"
+            >
+              <span>보기</span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
-    <div class="table-responsive px-5">
-      <!-- 현재 진행중인 사업 내역 -->
-      <header class="basic-medium"><span class="star">*</span>현재 진행중인 사업 내역</header>
-      <table class="table table-hover mb-5 twin">
-        <colgroup>
-          <col style="width: 5%" />
-          <col style="width: 15%" />
-          <col style="width: 24%" />
-          <col style="width: 15%" />
-          <col style="width: 25%" />
-          <col style="width: 10%" />
-          <col style="width: 6%" />
-        </colgroup>
-        <thead>
-          <tr>
-            <th scope="col">NO</th>
-            <th scope="col">발주처</th>
-            <th scope="col">사업명</th>
-            <th scope="col">참여기간</th>
-            <th scope="col">담당업무</th>
-            <th scope="col">역할</th>
-            <th scope="col">기술</th>
-          </tr>
-        </thead>
-        <tbody class="table-group-divider">
-          <tr v-if="currentProjects.length === 0">
-            <td colspan="7" class="figure-caption text-center">진행중인 사업이 없습니다</td>
-          </tr>
-          <tr
-            v-else
-            v-for="(project, index) in currentProjects"
-            :key="`current-${project.projectSeq}`"
-          >
-            <td>{{ index + 1 }}</td>
-            <td>{{ project.projectClient }}</td>
-            <td>{{ project.projectNm }}</td>
-            <td>
-              {{ formatDate(project.projectStartDate) }}
-              ~ {{ formatDate(project.projectEndDate) }}
-            </td>
-            <td>
-              {{ project.assignedTaskLarNm }}
-              <span v-if="project.assignedTaskMidNm"> > {{ project.assignedTaskMidNm }} </span>
-            </td>
-            <td>{{ project.projectRoleNm }}</td>
-            <td>
-              <button
-                type="button"
-                class="btn btn-warning btn-sm"
-                @click="viewSkill(project.projectSeq, '0')"
-              >
-                <span>보기</span>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- 과거 사업 내역 -->
-      <header class="basic-medium"><span class="star">*</span>과거 사업 내역</header>
-      <table class="table table-hover twin">
-        <colgroup>
-          <col style="width: 5%" />
-          <col style="width: 15%" />
-          <col style="width: 24%" />
-          <col style="width: 15%" />
-          <col style="width: 25%" />
-          <col style="width: 10%" />
-          <col style="width: 6%" />
-        </colgroup>
-        <thead>
-          <tr>
-            <th scope="col">NO</th>
-            <th scope="col">발주처</th>
-            <th scope="col">사업명</th>
-            <th scope="col">참여기간</th>
-            <th scope="col">담당업무</th>
-            <th scope="col">역할</th>
-            <th scope="col">기술</th>
-          </tr>
-        </thead>
-        <tbody class="table-group-divider">
-          <tr v-if="pastProjects.length === 0">
-            <td colspan="7" class="figure-caption text-center">참여했던 사업이 없습니다</td>
-          </tr>
-          <tr v-else v-for="(project, index) in pastProjects" :key="`past-${project.projectSeq}`">
-            <td>{{ index + 1 }}</td>
-            <td>{{ project.projectClient }}</td>
-            <td>{{ project.projectNm }}</td>
-            <td>
-              {{ formatDate(project.projectStartDate) }}
-              ~ {{ formatDate(project.projectEndDate) }}
-            </td>
-            <td>
-              {{ project.assignedTaskLarNm }}
-              <span v-if="project.assignedTaskMidNm"> > {{ project.assignedTaskMidNm }} </span>
-            </td>
-            <td>{{ project.projectRoleNm }}</td>
-            <td>
-              <button
-                type="button"
-                class="btn btn-warning btn-sm"
-                @click="viewSkill(project.projectSeq, '0')"
-              >
-                <span>보기</span>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <!-- 과거 사업 내역 -->
+    <header class="basic-medium"><span class="star">*</span>과거 사업 내역</header>
+    <table class="table table-hover twin">
+      <colgroup>
+        <col style="width: 5%" />
+        <col style="width: 15%" />
+        <col style="width: 24%" />
+        <col style="width: 15%" />
+        <col style="width: 25%" />
+        <col style="width: 10%" />
+        <col style="width: 6%" />
+      </colgroup>
+      <thead>
+        <tr>
+          <th scope="col">NO</th>
+          <th scope="col">발주처</th>
+          <th scope="col">사업명</th>
+          <th scope="col">참여기간</th>
+          <th scope="col">담당업무</th>
+          <th scope="col">역할</th>
+          <th scope="col">기술</th>
+        </tr>
+      </thead>
+      <tbody class="table-group-divider">
+        <tr v-if="pastProjects.length === 0">
+          <td colspan="7" class="figure-caption text-center">참여했던 사업이 없습니다</td>
+        </tr>
+        <tr v-else v-for="(project, index) in pastProjects" :key="`past-${project.projectSeq}`">
+          <td>{{ index + 1 }}</td>
+          <td>{{ project.projectClient }}</td>
+          <td>{{ project.projectNm }}</td>
+          <td>
+            {{ formatDate(project.projectStartDate) }}
+            ~ {{ formatDate(project.projectEndDate) }}
+          </td>
+          <td>
+            {{ project.assignedTaskLarNm }}
+            <span v-if="project.assignedTaskMidNm"> > {{ project.assignedTaskMidNm }} </span>
+          </td>
+          <td>{{ project.projectRoleNm }}</td>
+          <td>
+            <button
+              type="button"
+              class="btn btn-warning btn-sm"
+              @click="viewSkill(project.projectSeq, '0')"
+            >
+              <span>보기</span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 
@@ -129,25 +120,8 @@ export default {
       type: Array,
       default: () => [],
     },
-    careerSummary: {
-      type: [Number, String],
-      default: '',
-    },
   },
   computed: {
-    formattedCareerSummary() {
-      const totalMonth = Number(this.careerSummary)
-      if (!totalMonth || totalMonth <= 0) {
-        return '0개월'
-      }
-      const year = Math.floor(totalMonth / 12)
-      const months = totalMonth % 12
-
-      let result = ''
-      if (year > 0) result += `${year}년 `
-      if (months > 0) result += `${months}개월`
-      return result
-    },
     today() {
       // 오늘 날짜를 YYYY-MM-DD 형식으로 반환
       const now = new Date()
