@@ -9,5 +9,6 @@ import java.util.List;
 
 @Repository
 public interface TbUserQualificationInfoRepository extends JpaRepository<TbUserQualificationInfo, TbUserQualificationInfoId> {
+    void deleteByIdUserId(String userId);
     List<TbUserQualificationInfo> findByIdUserId(String userId);
 }

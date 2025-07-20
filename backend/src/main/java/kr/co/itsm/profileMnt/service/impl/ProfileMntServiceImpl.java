@@ -177,6 +177,11 @@ public class ProfileMntServiceImpl implements ProfileMntService {
             tbUserEducationInfoRepository.deleteByIdUserId(userId);
             tbUserEducationInfoRepository.flush();
         }
+        List<TbUserQualificationInfo> qualiEntity = tbUserQualificationInfoRepository.findByIdUserId(userId);
+        if(!qualiEntity.isEmpty()){
+            tbUserQualificationInfoRepository.deleteByIdUserId(userId);
+            tbUserQualificationInfoRepository.flush();
+        }
 
         // 3. 값 업데이트
         // profile
@@ -206,6 +211,27 @@ public class ProfileMntServiceImpl implements ProfileMntService {
                             .major(item.getMajor())
                             .totalGrade(item.getTotalGrade())
                             .gradStatus(item.getGradStatus())
+                            .createdDate(Instant.now())
+                            .creator(userId)
+                            .modifiedDate(Instant.now())
+                            .modifier(userId)
+                            .build());
+        });
+
+        // qualification
+        IntStream.range(0, payload.getQualificationInfo().size()).forEach(i -> {
+            TbUserQualificationInfoDto item = payload.getQualificationInfo().get(i);
+            tbUserQualificationInfoRepository.save(
+                    TbUserQualificationInfo.builder()
+                            .id(TbUserQualificationInfoId.builder()
+                                    .userId(userId)
+                                    .qualificationSeq(i + 1)
+                                    .build())
+                            .qualificationNm(item.getQualificationNm())
+                            .issuer(item.getIssuer())
+                            .acquisitionDate(item.getAcquisitionDate())
+                            .expiryDate(item.getExpiryDate())
+                            .useYn('Y')
                             .createdDate(Instant.now())
                             .creator(userId)
                             .modifiedDate(Instant.now())

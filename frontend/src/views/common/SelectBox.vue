@@ -6,7 +6,7 @@
       :value="modelValue"
       :disabled="disabled"
       style="background-color: transparent"
-      @change="$emit('update:modelValue', $event.target.value)"
+      @change="onChange"
     >
       <option v-for="opt in codeList" :key="opt.codeId" :value="opt.codeId">
         {{ opt.codeValue }}
@@ -39,6 +39,7 @@ export default {
       },
     },
   },
+  emits: ['update:modelValue'],
   methods: {
     async getCodeList(codeId) {
       try {
@@ -48,6 +49,9 @@ export default {
       } catch (error) {
         console.error('API 호출 실패:', error)
       }
+    },
+    onChange(event) {
+      this.$emit('update:modelValue', event.target.value)
     },
   },
 }
